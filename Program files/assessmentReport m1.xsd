@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:attribute name="environment" type="xs:string"/>
+	<xs:attribute name="mainSaveURL" type="xs:string"/>
+	<xs:attribute name="openView" type="xs:string"/>
+	<xs:attribute name="remedyServerName" type="xs:string"/>
+	<xs:attribute name="remedyServerPort" type="xs:string"/>
+	<xs:attribute name="dataChanged" type="xs:string"/>
+	<xs:attribute name="remedyUserId" type="xs:string"/>
+	<xs:attribute name="transactionGUID" type="xs:string"/>
+	<xs:element name="Addresses" type="Addresses"/>
+	<xs:complexType name="Addresses">
+		<xs:sequence>
+			<xs:element name="multilineAddress" type="Narrative"/>
+			<xs:element name="addressesNarrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ExecutiveSummary" type="ExecutiveSummary"/>
+	<xs:complexType name="ExecutiveSummary">
+		<xs:sequence>
+			<xs:element name="organisationalContextAndHistory" type="OrganisationlContextAndHistory"/>
+			<xs:element name="narrative" type="Narrative"/>
+			<xs:element name="process" type="Process"/>
+			<xs:element name="assessmentSummary" type="AssessmentSummary"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="OrganisationlContextAndHistory" type="OrganisationlContextAndHistory"/>
+	<xs:complexType name="OrganisationlContextAndHistory">
+		<xs:sequence>
+			<xs:element name="dateFirstApproved" type="xs:date" nillable="true"/>
+			<xs:element name="legalStructure" type="xs:string"/>
+			<xs:element name="narrative" type="Narrative"/>
+			<xs:element name="services" type="Service" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Narrative" mixed="true">
+		<xs:sequence>
+			<xs:any namespace="http://www.w3.org/1999/xhtml" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Service" type="Service"/>
+	<xs:complexType name="Service">
+		<xs:sequence>
+			<xs:element name="approved" type="xs:boolean"/>
+			<xs:element name="contracted" type="xs:boolean"/>
+			<xs:element name="serviceDescription" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Assessment" type="Assessment"/>
+	<xs:complexType name="Assessment">
+		<xs:sequence>
+			<xs:element name="assessmentReportID" type="xs:long"/>
+			<xs:element name="assessmentNumber" type="xs:long"/>
+			<xs:element name="assessor" type="xs:string"/>
+			<xs:element name="dateAssessed" type="xs:date" nillable="true"/>
+			<xs:element name="disclaimer" type="xs:string"/>
+			<xs:element name="lastDateAssessed" type="xs:date" nillable="true"/>
+			<xs:element name="legislation" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="purpose" type="xs:string"/>
+			<xs:element name="provider" type="Provider"/>
+			<xs:element name="executiveSummary" type="ExecutiveSummary"/>
+			<xs:element name="report" type="Report"/>
+			<xs:element name="standardSection" type="standardSection" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="environment"/>
+		<xs:attribute ref="mainSaveURL"/>
+		<xs:attribute ref="openView"/>
+		<xs:attribute ref="remedyServerName"/>
+		<xs:attribute ref="remedyServerPort"/>
+		<xs:attribute ref="dataChanged"/>
+		<xs:attribute ref="remedyUserId"/>
+		<xs:attribute ref="transactionGUID"/>
+	</xs:complexType>
+	<xs:element name="Provider" type="Provider"/>
+	<xs:complexType name="Provider">
+		<xs:sequence>
+			<xs:element name="id" type="xs:long"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="addresses" type="Addresses"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Process" type="Process"/>
+	<xs:complexType name="Process">
+		<xs:sequence>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="AssessmentSummary" type="AssessmentSummary"/>
+	<xs:complexType name="AssessmentSummary">
+		<xs:sequence>
+			<xs:element name="approvalStatus" type="xs:string"/>
+			<xs:element name="assessmentStatus" type="xs:string"/>
+			<xs:element name="conditions" type="Narrative"/>
+			<xs:element name="narrative" type="Narrative"/>
+			<xs:element name="suggestionsForQualityEnhancement" type="SuggestionsForQualityEnhancement"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="RemedialActions" type="RemedialActions"/>
+	<xs:complexType name="RemedialActions">
+		<xs:sequence>
+			<xs:element name="standardsForApproval" type="StandardsForApproval"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ImprovementsRequired" type="ImprovementsRequired"/>
+	<xs:complexType name="ImprovementsRequired">
+		<xs:sequence>
+			<xs:element name="action" type="xs:string"/>
+			<xs:element name="endDate" type="xs:date" nillable="true"/>
+			<xs:element name="section" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="StandardsForApproval" type="StandardsForApproval"/>
+	<xs:complexType name="StandardsForApproval">
+		<xs:sequence>
+			<xs:element name="action" type="xs:string"/>
+			<xs:element name="endDate" type="xs:date" nillable="true"/>
+			<xs:element name="requiredBy" type="xs:date" nillable="true"/>
+			<xs:element name="section" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="SuggestionsForQualityEnhancement" type="SuggestionsForQualityEnhancement"/>
+	<xs:complexType name="SuggestionsForQualityEnhancement">
+		<xs:sequence>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Report" type="Report"/>
+	<xs:complexType name="Report">
+		<xs:sequence>
+			<xs:element name="standard" type="Standard" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ProcessAndContext" type="ProcessAndContext"/>
+	<xs:complexType name="ProcessAndContext">
+		<xs:sequence>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="SectionText" type="SectionText"/>
+	<xs:complexType name="SectionText">
+		<xs:sequence>
+			<xs:element name="sectionNumber" type="xs:int" nillable="true"/>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Findings" type="Findings"/>
+	<xs:complexType name="Findings">
+		<xs:sequence>
+			<xs:element name="sectionNumber" type="xs:int" nillable="true"/>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Conclusion" type="Conclusion"/>
+	<xs:complexType name="Conclusion">
+		<xs:sequence>
+			<xs:element name="narrative" type="Narrative"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Standard" type="Standard"/>
+	<xs:complexType name="Standard">
+		<xs:sequence>
+			<xs:element name="standardID" type="xs:long" nillable="true"/>
+			<xs:element name="description" type="xs:string"/>
+			<xs:element name="fullDescription" type="xs:string"/>
+			<xs:element name="shortDescription" type="xs:string"/>
+			<xs:element name="text" type="Narrative"/>
+			<xs:element name="sectionText" type="SectionText" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="processesAndContext" type="ProcessAndContext"/>
+			<xs:element name="findings" type="Findings" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="conclusion" type="Conclusion"/>
+			<xs:element name="remedialActions" type="RemedialActions" maxOccurs="unbounded"/>
+			<xs:element name="improvementsRequired" type="ImprovementsRequired" maxOccurs="unbounded"/>
+			<xs:element name="improvementsRequiredBy" type="xs:string"/>
+			<xs:element name="suggestionsForQualityEnhancement" type="SuggestionsForQualityEnhancement"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="standardSection" type="standardSection"/>
+	<xs:complexType name="standardSection">
+		<xs:sequence>
+			<xs:element name="standardShortDescription" type="xs:string"/>
+			<xs:element name="availableSection" type="availableSection" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="availableSection" type="availableSection"/>
+	<xs:complexType name="availableSection">
+		<xs:sequence>
+			<xs:element name="sectionNumber" type="xs:int" nillable="true"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,930 @@
+<instructions>
+	<!--Initialises data used by other Actions-->
+	<initialise>
+		<!--The root node is the parent node all the content control mapped xml nodes are added to-->
+		<ccCustomXMLPart rootNode="ccData"/>
+
+		<!--Accreditation status - Site assessment DropDown values-->
+		<colourMapping	value="Confirmation of Accreditation at Level 1" foreground="Black" background="Green"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 2" foreground="Black" background="Green"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 3" foreground="Black" background="Green"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 4" foreground="Black" background="Green"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 1 with required actions" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 2 with required actions" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 3 with required actions" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Confirmation of Accreditation at Level 4 with required actions" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Accreditation with conditions at Level 1" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Accreditation with conditions at Level 2" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Accreditation with conditions at Level 3" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Accreditation with conditions at Level 4" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Accreditation pending completion of critical actions" foreground="White" background="Red"/>
+		<colourMapping	value="Accreditation Suspended" foreground="White" background="Red"/>
+		<colourMapping	value="Accreditation Revoked" foreground="White" background="Red"/>
+
+		<!--Key Findings: Outcome section DropDown values-->
+		<colourMapping	value="Standard exceeded" foreground="White" background="Blue"/>
+		<colourMapping	value="Standard met" foreground="Black" background="Green"/>
+		<colourMapping	value="Standard partially met" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Standard not met" foreground="White" background="Red"/>
+		<colourMapping	value="Not assessed" foreground="Black" background="White"/>
+	</initialise>
+
+	<!--These actions (plus the Refresh actions) create what is termed a Base Report-->
+	<actions>
+		<!--Tables containing editable fields need to be built left-to-right, not top-to-bottom-->
+		<!--Header block: Provider Provider Legal name-->
+		<insert bookmark	="HB_P_legalName"
+				dataFormat	="Text"
+				data		="/Assessment/provider/name"/>
+		<!--Header block: NZBN number-->
+		<insert bookmark	="HB_nzbn_number"
+				editable	="True"
+				dataFormat	="Text"
+				data		="/Assessment/legislation"/>
+		<!--Header block: Site visit start date-->
+		<insert bookmark	="HB_sv_startDate"
+				dataFormat	="DateLong"
+				data		="/Assessment/executiveSummary/organisationalContextAndHistory/dateFirstApproved"/>
+		<!--Header block: Site visit end date-->
+		<insert bookmark	="HB_sv_endDate"
+				editable	="True"
+				dataFormat	="Text"
+				data		="/Assessment/lastDateAssessed"/>
+		<!--Header block: RDA number-->
+		<insert bookmark	="HB_rda_number"
+				dataFormat	="Text"
+				data		="/Assessment/provider/id"/>
+		<!--Header block: Completed date-->
+		<insert bookmark	="HB_completedDate"
+				editable	="True"
+				dataFormat	="Text"
+				data		="/Assessment/dateAssessed"/>
+		<!--Header block: assessment number-->
+		<insert bookmark	="HB_assessment_number"
+				dataFormat	="Text"
+				data		="/Assessment/assessmentNumber"/>
+		<!--Header block: Site assessment (this field is null if it is not a site assessment)-->
+		<insert bookmark	="HB_siteAssessment"
+				dataFormat	="Text"
+				data		="/Assessment/disclaimer"/>
+
+		<!--Main assessment and Site assessment fork-->
+		<if condition="/Assessment[disclaimer = '']">
+			<!--Main assessment-->
+			<then>
+				<!--Insert the Main assessment building block-->
+				<!--This query results in a single Add operation, the query itself is arbitrary.
+				    It is used because it ALWAYS returns just one node, resulting in a single Add-->
+				<add	buildingBlock	="ES Main Assessment"
+						bookmark		="ES_Assessment_Block"
+						where			="ReplaceRange"
+						break="False"
+						test			="/Assessment">
+
+					<!--Executive Summary: Provider Legal name-->
+					<insert bookmark	="ES_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+					<!--Executive Summary: Assessment report outcome-->
+					<dropDown	bookmark	="ES_assessmentOutcome"
+								ccDataNode	="assessmentOutcome"
+								data		="/Assessment/provider/addresses/addressesNarrative"/>
+					<!--Executive Summary: Editable paragraph-->
+					<insert bookmark	="ES_EditableParagraph"
+							editable	="True"
+							dataFormat	="RichText"
+							data		="/Assessment/executiveSummary/narrative"/>
+				 </add>
+			</then>
+			<!--Site assessment-->
+			<else>
+				<!--Insert the Site assessment building block-->
+				<!--This query results in a single Add operation, the query itself is arbitrary-->
+				<add	buildingBlock	="ES Site Assessment"
+						bookmark		="ES_Assessment_Block"
+						where			="ReplaceRange"
+						test			="/Assessment">
+
+					<!--Executive Summary: Provider Legal name-->
+					<insert bookmark	="ES_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+					<!--Executive Summary: Site name-->
+					<insert bookmark	="ES_siteAssessment"
+							dataFormat	="Text"
+							data		="/Assessment/disclaimer"/>
+					<!--Executive Summary: Assessment report outcome-->
+					<dropDown	bookmark	="ES_assessmentOutcome"
+								ccDataNode	="assessmentOutcome"
+								data		="/Assessment/provider/addresses/addressesNarrative"/>
+					<!--Executive Summary: Editable paragraph-->
+					<insert bookmark	="ES_EditableParagraph"
+							editable	="True"
+							dataFormat	="RichText"
+							data		="/Assessment/executiveSummary/narrative"/>
+				 </add>
+			</else>
+		</if>
+
+		<!--Executive Summary SSAS Standards HeatMap-->
+		<!--We create the table with the Standard Short Descriptions (since these never change) and rename the bookmarks, so that each-->
+		<!--Bookmark has a unique name. The Refresh operation copied the Outcome value and applies the Colour Map-->
+		<addDual	buildingBlock	="ES SASS Heatmap Block N"
+					bookmark		="ES_SSAS_heatMap_table"
+					where			="AtEndOfRange"
+					buildingBlockN	="ES SASS Heatmap Block N"
+					bookmarkN		="ES_SSAS_heatMap_table"
+					whereN			="AtEndOfRange"
+					test			="/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')]">
+
+			<!--ES: SSAS Standards HeatMap: Left column Standard short description-->
+			<insert	bookmark	="HM_SSAS_standard_A"
+					dataFormat	="Text"
+					data		="(/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')])[%1]/../description"/>
+			<!--ES: SSAS Standards HeatMap: Left column Standard outcome-->
+			<!--Rename the bookmark (as it is reused) to generate a unique name for the Refresh operation, which copies the data and applies the Colour Map-->
+			<rename	oldName	="HM_SSAS_outcome_A"
+					newName	="HM_SSAS_outcome_s%1"/>
+
+			<!--The right hand side colums use the Offset predicate parameter placeholder (the '!')-->
+			<!--ES: SSAS Standards HeatMap: Right column Standard short description-->
+			<insert	bookmark	="HM_SSAS_standard_B"
+					dataFormat	="Text"
+					data		="(/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')])[!1]/../description"/>
+			<!--ES: SSAS Standards HeatMap: Right column Standard outcome-->
+			<!--Rename the bookmark (as it is reused) to generate a unique name for the Refresh operation, which copies the data and applies the Colour Map-->
+			<rename	oldName	="HM_SSAS_outcome_B"
+					newName	="HM_SSAS_outcome_s!1"/>
+		</addDual>
+
+		<!--Executive Summary Specialist and/or Agency Specific Standards HeatMap-->
+		<if	condition	="/Assessment/report/standard/fullDescription[starts-with(.,'Specialist Standard')]">
+			<!--Only generate the table if there are Specialist Standards to be inserted-->
+			<then>
+				<!--Setup the counter used to count the number of SSAS Standards which need to be skipped when building the Specialist Standard table-->
+				<counter	name			="heatmap"
+							valueFromQuery	="/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')]"/>
+
+				<!--We create the table with the Standard Short Descriptions (since these never change) and rename the bookmarks, so that each-->
+				<!--Bookmark has a unique name. The Refresh operation copied the Outcome value and applies the Colour Map-->
+				<!--Note the use of the 'indexAdjustment' named counter which is used to adjust the numbers that are part of the generated bookmark names-->
+				<addDual	buildingBlock	="ES SASS Heatmap Block N"
+							bookmark		="ES_SoAS_heatMap_table"
+							where			="AtEndOfRange"
+							buildingBlockN	="ES SASS Heatmap Block N"
+							bookmarkN		="ES_SoAS_heatMap_table"
+							whereN			="AtEndOfRange"
+							indexAdjustment	="heatmap"
+							test			="/Assessment/report/standard/fullDescription[starts-with(.,'Specialist Standard')]">
+
+					<!--ES: Specialist Standards HeatMap: Left column Standard short description-->
+					<insert	bookmark	="HM_SSAS_standard_A"
+							dataFormat	="Text"
+							data		="/Assessment/report/standard[%1]/description"/>
+					<!--ES: Specialist Standards HeatMap: Left column Standard outcome-->
+					<!--Rename the bookmark (as it is reused) to generate a unique name for the Refresh operation, which copies the data and applies the Colour Map-->
+					<rename	oldName	="HM_SSAS_outcome_A"
+							newName	="HM_SoAS_outcome_s%1"/>
+
+					<!--The right hand side colums use the Offset predicate parameter placeholder (the '!')-->
+					<!--ES: Specialist Standards HeatMap: Right column Standard short description-->
+					<insert	bookmark	="HM_SSAS_standard_B"
+							dataFormat	="Text"
+							data		="/Assessment/report/standard[!1]/description"/>
+					<!--ES: Specialist Standards HeatMap: Right column Standard outcome-->
+					<!--Rename the bookmark (as it is reused) to generate a unique name for the Refresh operation, which copies the data and applies the Colour Map-->
+					<rename	oldName	="HM_SSAS_outcome_B"
+							newName	="HM_SoAS_outcome_s!1"/>
+				</addDual>
+			</then>
+			<!--No Specialist Standards so delete the table header row-->
+			<else>
+				<!--Delete the table header row, for what would be the Specialist Standards table and the-->
+				<!--paragraph mark at the end of the table so that the vertical spacing looks ok-->
+				<delete	bookmark	="ES_SoAS_heatMap_tablePlaceholder"
+						what		="Table"/>
+				<!--The only purpose of this bookmark is to allow us to delete the paragraph mark immediately before it-->
+				<delete	bookmark	="CAP_introText"
+						what		="PMBefore"/>
+			</else>
+		</if>
+
+		<!--Corrective Action Plan block-->
+		<!--Critical Actions-->
+		<if condition="/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/section">
+			<then>
+				<add	buildingBlock	="CA Block 1"
+						bookmark		="CA_table"
+						where			="ReplaceRange"
+						buildingBlockN	="CA Block N"
+						bookmarkN		="CA_table"
+						whereN			="AtEndOfRange"
+						test			="/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/section">
+
+					<!--Critical Action: Standard (Name of Standard)-->
+					<insert bookmark	="CA_standardName"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/section)[%1]/../../../description"/>
+					<!--Critical Action: Criteria-->
+					<insert bookmark	="CA_criteria"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/section)[%1]"/>
+					<!--Critical Action: Action-->
+					<insert bookmark	="CA_action"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/action)[%1]"/>
+					<!--Critical Action: Due By-->
+					<insert bookmark	="CA_dueBy"
+							dataFormat	="DateShortYear"
+							data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/requiredBy)[%1]"/>
+					<!--Critical Action: Completed-->
+					<insert bookmark	="CA_completed"
+							dataFormat	="DateShortYear"
+							data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/endDate)[%1]"/>
+				</add>
+			</then>
+			<!--No Critical Actions-->
+			<else>
+				<!--This query results in a single Add operation, the query itself is arbitrary-->
+				<add	buildingBlock	="CA Block No CA"
+						bookmark		="CA_table"
+						where			="ReplaceRange"
+						test			="/Assessment">
+					 <!--Nothing needs inserting, the Building Block just inserted contains all necessary information-->
+				 </add>
+			</else>
+		</if>
+
+		<!--Required Actions-->
+		<if condition="/Assessment/report/standard/improvementsRequired[section != '']/section">
+			<then>
+				<!--Required Actions: Table with repeating rows-->
+				<add	buildingBlock	="RA Block 1"
+						bookmark		="RA_table"
+						where			="ReplaceRange"
+						buildingBlockN	="RA Block N"
+						bookmarkN		="RA_table"
+						whereN			="AtEndOfRange"
+						test			="/Assessment/report/standard/improvementsRequired[section != '']/section">
+
+					 <!--Required Action: Standard (Name of Standard)-->
+					<insert bookmark	="RA_standardName"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/improvementsRequired[section != '']/section)[%1]/../../description"/>
+					<!--Required Action: Criteria-->
+					<insert bookmark	="RA_criteria"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/improvementsRequired[section != '']/section)[%1]"/>
+					<!--Required Action: Action-->
+					<insert bookmark	="RA_action"
+							dataFormat	="Text"
+							data		="(/Assessment/report/standard/improvementsRequired[section != '']/action)[%1]"/>
+					<!--Required Action: Due By-->
+					<insert bookmark	="RA_dueBy"
+							dataFormat	="DateShortYear"
+							data		="(/Assessment/report/standard/improvementsRequired[section != ''])[%1]/../improvementsRequiredBy"/>
+				 </add>
+			</then>
+			<else>
+				<!--This query results in a single Add operation, the query itself is arbitrary-->
+				<add	buildingBlock	="RA Block No RA"
+						bookmark		="RA_table"
+						where			="ReplaceRange"
+						test			="/Assessment">
+					 <!--Nothing needs inserting, the Building Block just inserted contains all necessary information-->
+				 </add>
+			</else>
+		</if>
+
+		<!--Strengths identified at review-->
+		<!--Strengths identified at review: Editable paragraph-->
+		<insert bookmark	="SIAR_EditableParagraph"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/organisationalContextAndHistory/narrative"/>
+
+		<!--Recommendations: Editable paragraph-->
+		<insert bookmark	="Recommendations_editableParagraph"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/suggestionsForQualityEnhancement/narrative"/>
+
+		<!--Recommendations: Table with repeating rows-->
+		<!--The table displays all Key Findings Exceptions with a type of Recommendation--> 
+		<add	buildingBlock	="Recommendations Block 1"
+				bookmark		="Recommendations_tablePlaceholder"
+				where			="ReplaceRange"
+				buildingBlockN	="Recommendations Block N"
+				bookmarkN		="Recommendations_table"
+				whereN			="AtEndOfRange"
+				test			="/Assessment/report/standard/findings[findingType = 'Recommendation']">
+
+			 <!--Recommendations: Standard (Name of Standard)-->
+			<insert bookmark	="Recommendations_standardName"
+					dataFormat	="Text"
+					data		="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/description"/>
+			<!--Recommendations: Action (rolled-up from the Key Findings Exception table Action item)-->
+		 </add>
+
+		<!--Accreditation Status-->
+		<!--Main assessment and Site assessment fork-->
+		<if condition="/Assessment[disclaimer = '']">
+			<!--Main assessment-->
+			<then>
+				<!--This query results in a single Add operation-->
+				<!--Accreditation Status: Add the Main assessment building block-->
+				<add	buildingBlock	="AS Main Assessment"
+						bookmark		="AS_Assessment_Block"
+						where			="ReplaceRange"
+						test			="/Assessment">
+
+					 <!--Accreditation Status: Status Block-->
+					<insert bookmark	="AS_status"
+							dataFormat	="Text"
+							coloured	="True"	
+							data		="/Assessment/executiveSummary/assessmentSummary/approvalStatus"/>
+					<!--Accreditation Status: Provider Legal name-->
+					<insert bookmark	="AS_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+					<!--Accreditation Status: Ministries and Agencies-->
+					<insert bookmark	="AS_ministriesAndAgencies"
+							editable	="True"
+							dataFormat	="Text"
+							data		="/Assessment/purpose"/>
+				 </add>
+			</then>
+			<!--Site assessment-->
+			<else>
+				<!--This query results in a single Add operation-->
+				<!--Accreditation Status: Add the Site assessment building block-->
+				<add	buildingBlock	="AS Site Assessment"
+						bookmark		="AS_Assessment_Block"
+						where			="ReplaceRange"
+						test			="/Assessment">
+
+					 <!--Accreditation Status: Status Block-->
+					<dropDown	bookmark	="AS_status"
+								coloured	="True"
+								ccDataNode	="accreditationStatus"
+								data		="/Assessment/executiveSummary/assessmentSummary/approvalStatus"/>
+					<!--Accreditation Status: Provider Legal name-->
+					<insert bookmark	="AS_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+					<!--Accreditation Status: Site name-->
+					<insert bookmark	="AS_siteAssessment"
+							dataFormat	="Text"
+							data		="/Assessment/disclaimer"/>
+					<!--Accreditation Status: Ministries and Agencies-->
+					<insert bookmark	="AS_ministriesAndAgencies"
+							editable	="True"
+							dataFormat	="Text"
+							data		="/Assessment/purpose"/>
+				 </add>
+			</else>
+		</if>
+
+		<!--Accreditation Status: Approved Service List-->
+		<add	buildingBlock	="AS Approved Service 1"
+				bookmark		="AS_approvedServices_tablePlaceholder"
+				where			="ReplaceRange"
+				buildingBlockN	="AS Approved Service N"
+				bookmarkN		="AS_approvedServices_table"
+				whereN			="AtEndOfRange"
+				test			="/Assessment/executiveSummary/organisationalContextAndHistory/services/serviceName">
+
+			<!--Accreditation Status: Approved Service List: Approved Service-->
+			<insert	bookmark	="AS_approvedService"
+					dataFormat	="Text"
+					data		="/Assessment/executiveSummary/organisationalContextAndHistory/services[%1]/serviceName"/>
+		</add>
+
+		<!--Accreditation Status: Editable paragraph-->
+		<insert	bookmark	="AS_editableParagraph"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/conditions"/>
+
+		<!--Action Plan-->
+		<!--Action Plan: Editable paragraph-->
+		<insert	bookmark	="AP_editableParagraph"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/process/narrative"/>
+
+		<!--Overview-->
+		<!--Main assessment and Site assessment fork-->
+		<if condition="/Assessment[disclaimer = '']">
+			<!--Main assessment-->
+			<then>
+				<!--This query results in a single Add operation-->
+				<add	buildingBlock	="O Main Assessment"
+						bookmark		="O_Assessment_Block"
+						where			="ReplaceRange"
+						test			="/Assessment">
+
+					<!--Overview: Assessment type-->
+					<insert	bookmark	="O_assessmentType"
+							dataFormat	="Text"
+							data		="/Assessment/assessor"/>
+					<!--Overview: Provider Legal name-->
+					<insert bookmark	="O_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+				 </add>
+			</then>
+			<!--Site assessment-->
+			<else>
+				<!--This query results in a single Add operation-->
+				<add	buildingBlock	="O Site Assessment"
+						bookmark		="O_Assessment_Block"
+						where			="ReplaceRange"
+						test			="/Assessment">
+
+					<!--Overview: Assessment type-->
+					<insert	bookmark	="O_assessmentType"
+							dataFormat	="Text"
+							data		="/Assessment/assessor"/>
+					<!--Overview: Provider Legal name-->
+					<insert bookmark	="O_P_legalName"
+							dataFormat	="Text"
+							data		="/Assessment/provider/name"/>
+					<!--Overview: Site name-->
+					<insert bookmark	="O_siteAssessment"
+							dataFormat	="Text"
+							data		="/Assessment/disclaimer"/>
+				 </add>
+			 </else>
+		</if>
+		<!--Overview: Editable paragraph-->
+		<insert	bookmark	="O_editableParagraph"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/narrative"/>
+		<!--Overview: Cross Government Text Indicator-->
+		<dropDown	bookmark	="O_crossGovtAssessment"
+					ccDataNode	="crossGovtAssessment"
+					data		="/Assessment/executiveSummary/assessmentSummary/assessmentStatus"/>
+
+		<!--Key Findings-->
+		<!--Key Findings: Add a Key Findings block-->
+		<add	buildingBlockN	="KF Block"
+				bookmarkN		="KF_block"
+				whereN			="AfterLastParagraph"
+				deleteIfNull	="KF_Block"
+				test			="/Assessment/report/standard[standardID != '']">
+
+			<!--Key Findings: SSAS/Specialist Standard Full Description-->
+			<insert bookmark	="KF_standardFullDescription"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[%1]/fullDescription"/>
+			<!--Key Findings: Standard text-->
+			<insert bookmark	="KF_standard_text"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[%1]/text"/>
+					
+			<!--Key Findings: Section Text: Table-->
+			<add	buildingBlockN	="KF SectionText Block N"
+					bookmarkN		="KF_standard_sectionText_table"
+					whereN			="AtEndOfRange"
+					test			="/Assessment/report/standard[%1]/sectionText">
+				<!--Key Findings: Section Text: Table: Section Number-->
+				<insert	bookmark	="KF_standard_sectionNumber"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/sectionText[%2]/sectionNumber"/>
+				<!--Key Findings: Section Text: Table: Narrative-->
+				<insert	bookmark	="KF_standard_narrative"
+						pattern		="KF_s%1_standard_narrative%2"
+						dataFormat	="RichText"
+						data		="/Assessment/report/standard[%1]/sectionText[%2]/narrative"/>
+			</add>
+
+			<!--Key Findings: Evidence-->
+			<insert bookmark	="KF_evidence"
+					pattern		="KF_s%1_evidence"
+					editable	="True"
+					dataFormat	="RichText"
+					data		="/Assessment/report/standard[%1]/processesAndContext/narrative"/>
+			<!--Key Findings: Field notes-->
+			<insert bookmark	="KF_fieldNotes"
+					pattern		="KF_s%1_fieldNotes"
+					editable	="True"
+					dataFormat	="RichText"
+					data		="/Assessment/report/standard[%1]/suggestionsForQualityEnhancement/narrative"/>
+			<!--Key Findings: Field notes block (Rename Field Notes block so that it has a unique name)-->
+			<rename oldName	="KF_fieldNotes_block"
+					newName	="KF_s%1_fieldNotes_block"/>
+
+			<!--Key Findings: Exceptions-->
+			<!--Data/No data fork-->
+			<if condition="/Assessment/report/standard[%1]/findings">
+				<then>
+					<add	buildingBlock	="KF Exceptions Block 1"
+							bookmark		="Exceptions_tablePlaceholder"
+							where			="ReplaceRange"
+							pattern			="Exceptions_s%1_tablePlaceholder"
+							buildingBlockN	="KF Exceptions Block N"
+							bookmarkN		="Exceptions_table"
+							whereN			="AtEndOfRange"
+							test			="/Assessment/report/standard[%1]/findings">
+
+						<!--Key Findings: Exceptions: Criteria-->
+						<insert bookmark	="KF_criteria"
+								pattern		="KF_s%1_criteria_%2"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/findings[%2]/sectionNumber"/>
+						<!--Key Findings: Exceptions: Findings-->
+						<insert bookmark	="KF_findings"
+								pattern		="KF_s%1_findings_%2"
+								editable	="True"
+								dataFormat	="RichText"
+								data		="/Assessment/report/standard[%1]/findings[%2]/narrative"/>
+						<!--Key Findings: Exceptions: Type of Finding-->
+						<insert bookmark	="KF_findingsType"
+								pattern		="KF_s%1_findingsType_%2"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/findings[%2]/findingType"/>
+					 </add>
+				</then>
+
+				<!--Key Findings: Exceptions: No data-->
+				<else>
+					<!--This query results in a single Add operation-->
+					<add	buildingBlock	="KF Exceptions Block None"
+							bookmark		="Exceptions_tablePlaceholder"
+							pattern			="Exceptions_s%1_tablePlaceholder"
+							where			="ReplaceRange"
+							test			="/Assessment">
+						<!--Nothing needs inserting, the Building Block just inserted contains all necessary information-->
+					 </add>
+				</else>
+			</if>
+			<!--Key Findings: Outcome-->
+			<dropDown	bookmark	="KF_outcome"
+						pattern		="KF_s%1_outcome"
+						ccDataNode	="outcome%1"
+						data		="/Assessment/report/standard[%1]/conclusion/narrative"/>
+		 </add>
+	</actions>
+
+	<refresh>
+		<!--Executive Summary SSAS Standards HeatMap-->
+		<!--The table does not need rebuilding as the number of SSAS Standards is static-->
+		<do	condition="/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')]">
+			<!--ES: SSAS Standards HeatMap: Left and Right columns Standard outcome-->
+			<copy	toBookmark		="HM_SSAS_outcome_s%1"
+					fromBookmark	="KF_s%1_outcome"
+					coloured		="True"/>
+		</do>
+
+		<!--Executive Summary Specialist Standards HeatMap-->
+		<!--This only needs to be done if there are Specialist Standards present-->
+		<if	condition	="/Assessment/report/standard/fullDescription[starts-with(.,'Specialist Standard')]">
+			<then>
+				<!--Setup the counter used to count the number of SSAS Standards which need to be skipped when building the Specialist Standard table-->
+				<counter	name			="heatmap"
+							valueFromQuery	="/Assessment/report/standard/fullDescription[starts-with(.,'SSAS Standard')]"/>
+
+				<!--The table does not need rebuilding as the number of Specialist Standards is static-->
+				<do	condition		="/Assessment/report/standard/fullDescription[starts-with(.,'Specialist Standard')]"
+					indexAdjustment	="heatmap">
+					<!--ES: SSAS Standards HeatMap: Left and Right columns Standard outcome-->
+					<copy	toBookmark		="HM_SoAS_outcome_s%1"
+							fromBookmark	="KF_s%1_outcome"
+							coloured		="True"/>
+				</do>
+			</then>
+		</if>
+
+		<!--Corrective Action Plan: Strengths identified at review-->
+		<!--Delete existing table-->
+		<delete	bookmark	="SIAR_table"/>
+
+		<!--Strengths identified at review: Table with repeating rows-->
+		<!--The table displays all Key Findings Exceptions with a type of Strength-->
+		<counter	name	="findings"
+					value	="0"/>
+		<!--Iterate all Standards (not just those with "findings[findingType = 'Strength']"/)-->
+		<do condition	="/Assessment/report/standard">
+			<!--Iterate all 'findings' of the Standard selected by the preceeding 'do'-->
+			<do condition	="/Assessment/report/standard[%1]/findings">
+				<!--We are only interested in the 'finding' is it is a 'Strength'-->
+				<if	condition	="/Assessment/report/standard[%1]/findings[%2][findingType = 'Strength']">
+					<then>
+						<!--The counter determines which Building Block is inserted-->
+						<counter	name="findings"
+									add	="1"/>
+						<if	counter="findings" operator="EQ" value="1">
+							<then>
+								<!--Insert the Building Block that contains the table header-->
+								<add	buildingBlock	="SIAR Block 1"
+										bookmark		="SIAR_tablePlaceholder"
+										where			="ReplaceRange"
+										test			="/Assessment">
+								</add>
+							</then>
+							<else>
+								<!--Insert the Building Block that contains a data row-->
+								<add	buildingBlock	="SIAR Block N"
+										bookmark		="SIAR_table"
+										where			="AtEndOfRange"
+										test			="/Assessment">
+								</add>
+							</else>
+						</if>
+						<!--Give the bookmark predefined in the table data row a unique name-->
+						<rename	oldName	="SIAR_findings"
+								newName	="SIAR_s%1_findings_%2"/>
+
+						<!--Strengths identified at review: Action (rolled-up from the Key Findings Exception tables Action item)-->
+						<link	bookmark	="SIAR_s%1_findings_%2"
+								source		="KF_s%1_findings_%2"/>
+					</then>
+				</if>
+			</do>
+		</do>
+
+		<!--Corrective Action Plan: Recommendations-->
+		<!--Delete existing table-->
+		<delete	bookmark	="Recommendations_table"/>
+
+		<!--Recommendations: Table with repeating rows-->
+		<!--The table displays all Key Findings Exceptions with a type of Recommendation-->
+		<!--Reuse the 'findings' counter-->
+		<counter	name	="findings"
+					value	="0"/>
+		<!--Iterate all Standards (not just those with "findings[findingType = 'Recommendation']"/)-->
+		<do condition	="/Assessment/report/standard">
+			<!--Iterate all 'findings' of the Standard selected by the preceeding 'do'-->
+			<do condition	="/Assessment/report/standard[%1]/findings">
+				<!--We are only interested in the 'finding' is it is a 'Recommendation'-->
+				<if	condition	="/Assessment/report/standard[%1]/findings[%2][findingType = 'Recommendation']">
+					<then>
+						<!--The counter determines which Building Block is inserted-->
+						<counter	name="findings"
+									add	="1"/>
+						<if	counter="findings" operator="EQ" value="1">
+							<then>
+								<!--Insert the Building Block that contains the table header-->
+								<add	buildingBlock	="Recommendations Block 1"
+										bookmark		="Recommendations_tablePlaceholder"
+										where			="ReplaceRange"
+										test			="/Assessment">
+								</add>
+							</then>
+							<else>
+								<!--Insert the Building Block that contains a follow on row-->
+								<add	buildingBlock	="Recommendations Block N"
+										bookmark		="Recommendations_table"
+										where			="AtEndOfRange"
+										test			="/Assessment">
+								</add>
+							</else>
+						</if>
+						 <!--Recommendations: Standard (Name of Standard)-->
+						<insert bookmark	="Recommendations_standardName"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/description"/>
+
+						<!--Give the bookmark predefined in the table data row a unique name-->
+						<rename	oldName	="Recommendations_findings"
+								newName	="Recommendations_s%1_findings_%2"/>
+
+						<!--Recommendations: Action (rolled-up from the Key Findings Exception tables Action item)-->
+						<link	bookmark	="Recommendations_s%1_findings_%2"
+								source		="KF_s%1_findings_%2"/>
+					</then>
+				</if>
+			</do>
+		</do>
+
+		<!--Overview: Ministries and Agencies-->
+		<copy	toBookmark		="O_ministriesAndAgencies"
+				fromBookmark	="AS_ministriesAndAgencies"/>
+
+		<!--Key Findings: Outcome-->
+		<!--Reapply the colour map to every Standards Outcome in case the user changed it-->
+		<do condition	="/Assessment/report/standard">
+			<colourMap	bookmark	="KF_s%1_outcome"/>
+		</do>
+	</refresh>
+
+	<!--This is where the report variants are created.  All variants are created from a Base Report-->
+	<reports>
+		<!--Create a Full Report - Base Report with all Field Note sections removed-->
+		<fullReport>
+			<!--Iterate all Standards-->
+			<do condition	="/Assessment/report/standard">
+				<!--Delete all Field Notes blocks-->
+				<delete	bookmark					="KF_s%1_fieldNotes_block"
+						preserveEditableBookmarks	="True"/>
+			</do>
+		</fullReport>
+
+		<!--Create a Summary Report - Base Report with all Field Note sections removed and Key Findings Removed-->
+		<summaryReport>
+			<!--Delete the Key Findings Title line-->
+			<delete	bookmark					="KF_block_header"
+					preserveEditableBookmarks	="True"/>
+			<!--Delete all Key Findings-->
+			<delete	bookmark					="KF_block"
+					preserveEditableBookmarks	="True"/>
+		</summaryReport>
+	</reports>
+
+	<userInterface>
+		<!--There should only be one queries node-->
+		<queries buildDropDown					="/Assessment/standardSection/standardShortDescription"
+				 numberOfToggleButtons			="/Assessment/standardSection[%1]/availableSection"
+				 tickedStrengthButtons			="/Assessment/report/standard[%1]/findings[findingType = 'Strength']/sectionNumber"
+				 tickedRecommendationButtons	="/Assessment/report/standard[%1]/findings[findingType = 'Recommendation']/sectionNumber"
+				 allFindings					="/Assessment/report/standard[%1]/findings"
+		         parentNodeForAddDelete			="/Assessment/report/standard[%1]"
+		         nextSiblingDifferentTag		="/Assessment/report/standard[%1]/conclusion"
+				 deleteFindingsXML				="/Assessment/report/standard[%1]/findings/sectionNumber[.=%2]/../findingType[.='%3']/.."/>
+
+		<!--There should only be one bookmarks node-->
+		<bookmarks	exceptionTable	="Exceptions_s%1_tablePlaceholder"/>
+
+		<!--There should only be one newXML node-->
+		<!--This contains the xml node structure for the xml added when a new exceptions table row is added-->
+		<newXML	newException	="&lt;findings&gt;&lt;sectionNumber&gt;%1&lt;/sectionNumber&gt;&lt;narrative&gt;%2&lt;/narrative&gt;&lt;findingType&gt;%3&lt;/findingType&gt;&lt;/findings&gt;"/>
+
+		<!--There should only be one actionSet node and one each of its child nodes-->
+		<!--Each actionSet child node should contain an instruction list to perform the required task-->
+		<!--The underlying xml has always been updated before one of the defined actionSet action lists is executed-->
+		<actionSet>
+			<!--Adds an Exception table for the selected (from the UI) standard if one is not already present-->
+			<addExceptionsTable>
+				<!--This counter is only used to supply Start and End values to the following do actions-->
+				<!--The counter values are provided by Functions within the Addin-->
+				<counter	name			="standardNumber"
+							valueFromAddin	="StandardIndexNumber"/>
+				<!--This outer loop solely exists to set up the %1 counter for g_counters-->
+				<do	start	="standardNumber"
+					end		="standardNumber">
+
+					<!--Only insert the Table header if we are inserting the first data row in the table-->
+					<if	condition	="/Assessment/report/standard[%1]/findings"
+						value		="1">
+						<then>
+							<!--This Building Block differs compared to 'KF Exceptions Block 1' as this Building Block has no data row-->
+							<add	buildingBlock	="KF Exceptions Block H"
+									bookmark		="Exceptions_s%1_tablePlaceholder"
+									where			="ReplaceRange"
+									pattern			="Exceptions_s%1_tablePlaceholder"
+									test			="/Assessment/report/standard[%1]/findings">
+								<!--Nothing needs inserting, the Building Block just inserted contains all necessary information-->
+							</add>
+						</then>
+					</if>
+				</do>
+			</addExceptionsTable>
+
+			<!--Adds a rows to the selected (from the UI) standards Exception table-->
+			<addExceptionsRow>
+				<!--These counters are only used to supply Start and End values to the following two do actions-->
+				<!--The counter values are provided by Functions within the Addin-->
+				<counter	name			="standardNumber"
+							valueFromAddin	="StandardIndexNumber"/>
+				<counter	name			="firstRow"
+							valueFromAddin	="FirstRowToRename"/>
+				<counter	name			="lastRow"
+							valueFromAddin	="LastRowToRename"/>
+				<counter	name			="rowPosition"
+							valueFromAddin	="InsertRowAfter"/>
+
+				<!--This outer loop solely exists to set up the %1 counter for g_counters-->
+				<do	start	="standardNumber"
+					end		="standardNumber">
+					<!--Rename all bookmarks in the rows that follow the row being inserted. This starts at the last row and works upwards-->
+					<!--This allows the bookmarks to be retain their consecutive numbering once the new row and its contents have been inserted-->
+					<do	start	="firstRow"
+						end		="lastRow"
+						reverse	="True">
+						<!--Rename the bookmarks to make space for reusing the ones in the row being inserted-->
+						<!--Key Findings: Exceptions: Criteria-->
+						<rename	newName		="KF_s%1_criteria_%2"
+								oldName		="KF_s%1_criteria_%2"
+								increment	="1"/>
+						<!--Key Findings: Exceptions: Findings-->
+						<rename	newName		="KF_s%1_findings_%2"
+								oldName		="KF_s%1_findings_%2"
+								increment	="1"/>
+						<!--Key Findings: Exceptions: Type of Finding-->
+						<rename	newName		="KF_s%1_findingsType_%2"
+								oldName		="KF_s%1_findingsType_%2"
+								increment	="1"/>
+					</do>
+
+					<!--Add the new row and then use the newly added xml data (added by code) to fill the row...-->
+					<do	start	="rowPosition"
+						end		="rowPosition">
+						<!--Add the new row to the table-->
+						<addRow	buildingBlock	="KF Exceptions Block N"
+								tableBookmark	="Exceptions_s%1_tablePlaceholder"
+								insertAfterRow	="rowPosition"/>
+
+						<!--Key Findings: Exceptions: Criteria-->
+						<insert bookmark	="KF_criteria"
+								pattern		="KF_s%1_criteria_%2"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/findings[%2]/sectionNumber"/>
+						<!--Key Findings: Exceptions: Findings-->
+						<!--The dataFormat definition here conflicts with the definition in the main 'actions' node above. This
+							is so we can set a default value, which can not be done with a RichText definition. When the xml
+							is updated prior to returning it to the Middleware Web Service it is the main Actions node 
+							definition that will be used, not this one.-->
+						<insert bookmark	="KF_findings"
+								pattern		="KF_s%1_findings_%2"
+								editable	="True"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/findings[%2]/narrative"/>
+						<!--Key Findings: Exceptions: Type of Finding-->
+						<insert bookmark	="KF_findingsType"
+								pattern		="KF_s%1_findingsType_%2"
+								dataFormat	="Text"
+								data		="/Assessment/report/standard[%1]/findings[%2]/findingType"/>
+					</do>
+				</do>
+			</addExceptionsRow>
+
+			<!--This is used to delete a standards Exceptions table when it has no data rows-->
+			<!--We don't bother to delete the header row we just replace it with the 'There are no exceptions' text-->
+			<deleteExceptionsTable>
+				<!--This counter is only used to supply Start and End values to the following do action-->
+				<!--The counter values are provided by Functions within the Addin-->
+				<counter	name			="standardNumber"
+							valueFromAddin	="StandardIndexNumber"/>
+
+				<!--This loop solely exists to set up the %1 counter for g_counters-->
+				<do	start	="standardNumber"
+					end		="standardNumber">
+
+					<!--If a standard has no findings then the Exception table header row should be replaced with the 'There are no exceptions' text-->
+					<if	condition	="/Assessment/report/standard[%1]/findings"
+						value		="0">
+						<then>
+							<!--This query results in a single Add operation-->
+							<add	buildingBlock	="KF Exceptions Block None"
+									bookmark		="Exceptions_s%1_tablePlaceholder"
+									pattern			="Exceptions_s%1_tablePlaceholder"
+									where			="ReplaceRange"
+									test			="/Assessment">
+								<!--Nothing needs inserting, the Building Block just inserted contains all necessary information-->
+							</add>
+						</then>
+					</if>
+				</do>
+			</deleteExceptionsTable>
+
+			<!--Delete a row from the selected (from the UI) standards Exception table-->
+			<deleteExceptionsRow>
+				<!--These counters are only used to supply Start and End values to the following do and deleteRow actions-->
+				<!--The counter values are provided by Functions within the Addin-->
+				<counter	name			="standardNumber"
+							valueFromAddin	="StandardIndexNumber"/>
+				<counter	name			="rowPosition"
+							valueFromAddin	="DeleteRow"/>
+				<counter	name			="firstRow"
+							valueFromAddin	="FirstRowToRename"/>
+				<counter	name			="lastRow"
+							valueFromAddin	="LastRowToRename"/>
+
+				<!--This loop solely exists to set up the %1 counter for g_counters-->
+				<do	start	="standardNumber"
+					end		="standardNumber">
+
+					<!--Delete the specified row for the selected standards Exceptions table-->
+					<deleteRow	tableBookmark	="Exceptions_s%1_tablePlaceholder"
+								row				="rowPosition"/>
+
+					<!--Rename all bookmarks in the rows that follow the row just deleted. This starts at the first row and works downwards-->
+					<!--This allows the bookmarks to be retain their consecutive numbering after a row has been deleted-->
+					<do	start	="firstRow"
+						end		="lastRow">
+						<if	counter="firstRow" operator="GT" value="0">
+							<then>
+								<!--Rename the bookmarks to eliminate the missing number from the deleted row-->
+								<!--Key Findings: Exceptions: Criteria-->
+								<rename	newName		="KF_s%1_criteria_%2"
+										oldName		="KF_s%1_criteria_%2"
+										increment	="-1"/>
+								<!--Key Findings: Exceptions: Findings-->
+								<rename	newName		="KF_s%1_findings_%2"
+										oldName		="KF_s%1_findings_%2"
+										increment	="-1"/>
+								<!--Key Findings: Exceptions: Type of Finding-->
+								<rename	newName		="KF_s%1_findingsType_%2"
+										oldName		="KF_s%1_findingsType_%2"
+										increment	="-1"/>
+							</then>
+						</if>
+					</do>
+
+				</do>
+			</deleteExceptionsRow>
+		</actionSet>
+	</userInterface>
+</instructions>

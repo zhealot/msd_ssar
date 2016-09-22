@@ -1,0 +1,638 @@
+<?xml version="1.0"?>
+<!--To create the nodeList for extracting the RichText data use the following XPath query:
+	//xhtml:div[not (ancestor::xhtml:div) and text() != '']
+	This creates a list of "div" nodes including only the top level "div" node in each branch
+	of the tree, all nested "div" nodes are NOT included in the nodeList.-->
+<!--The xml in the root 'instructions' node forks into two separate sub-nodes:
+    actions
+		Are a group of 'setup', 'add' and 'insert' nodes used to build an Assessment Report. 
+	userInterface
+		Forks into two sub-nodes:
+			queries
+				Nodes are a set of queries used to build the data consumed by the Fluent UI to build the 
+				custom RDA Tab.
+			addContent
+				Is another 'actions' group used by the Fluent UI to insert data into an Assessment Report.
+			deleteContent
+				?
+
+	Add nodes have the following attributes:
+		buildingBlock
+			The name of the Building Block to insert if the index value is 1.
+		bookmark
+			The name of the Bookmark specifying the location to insert 'buildingBlock'.
+		extendBookmark
+			True, then 'bookmark' is extended to include the text inserted using 'buildingBlock'.
+			False, then 'bookmark' stays as it was before the 'add'.
+			Default = 'True'.
+		where
+			'AfterLastParagraph' specifies create a new paragraph to insert 'buildingBlock' in at the end of 
+			the range specified by 'bookmark'.
+			'AtEndOfRange' specifies insert 'buildingBlock' at the end of the range specified by 'bookmark'.
+		buildingBlockN
+			The name of the Building Block to insert if the index value is greater than 1.
+		bookmarkN
+			The name of the Bookmark specifying the location to insert 'buildingBlockN'.
+		extendBookmarkN
+			True, then 'bookmarkN' is extended to include the text inserted using 'buildingBlockN'.
+			False, then 'bookmarkN' stays as it was before the 'add'.
+			Default = 'True'.
+		whereN
+			'AfterLastParagraph' specifies create a new paragraph to insert 'buildingBlockN' in at the end of 
+			the range specified by 'bookmarkN'.	
+			'AtEndOfRange' specifies insert 'buildingBlockN' at the end of the range specified by 'bookmarkN'.
+		deleteIfNull
+			The name of a Bookmark specifying a range to be delete if query 'test' yields no data.
+		pattern
+			The name of a secondary Bookmark created to mark the text inserted using either 'buildingBlock' 
+			or 'buildingBlockN'.
+		refresh
+			True, then causes the range marked by 'refreshBookmark' to be deleted, then process the Add action
+			block to rebuild the document content for the deleted block of text.
+		refreshDeleteBM
+			A bookmark whose range should be deleted prior to doing the fresh.
+		refreshQuery
+			The xpath query that determines which nodes should have their contents updated to match the 
+			corresponding bookmark specified by ''.
+		refreshTargetBM
+			The bookmark patern of the bookmarks matching the xpath query. For each bookmark the corresponding 
+			xml element will be updated. This step controls what is actually selected by the 'test' xpath query.
+		refreshBMData
+			The xpath query that determines which node value from the assessment report xml will be used as
+			part of a bookmark name to generate a unique bookmark name.
+		break
+			True, then code breaks before execution of the 'add' instruction.
+			Default = False.
+		test
+			An xml xpath query that yields one or more nodes. A Building Block is inserted for each occurrence
+			of a node. The first Building Block inserted (index = 1) uses 'buildingBlock', the second and 
+			subsequent Building Blocks inserted use 'buildingBlockN'.
+
+		Note 1:	If 'buildingBlock' is specified, 'bookmark' and 'where' must be specified, 'extendBookmark' 
+				is optional and defaults to True.
+		Note 2:	If 'buildingBlockN' is specified, 'bookmarkN' and 'whereN' must be specified, 'extendBookmarkN' 
+				is optional and defaults to True.
+
+	Insert nodes have the following attributes:
+		bookmark
+			The name of a Bookmark to update with the results from the 'data' xpath query.
+		pattern
+			A unique name for the Bookmark when there are repeating blocks of text.
+		deleteIfNull
+			The name of a Bookmark whose contents will be deleted if the 'data' xpath query returns no nodes.
+		editable
+			Whether the Bookmarked area of the document should be editable (True/False).
+			Default = False.
+		dataFormat
+			The format of the data inserted into the bookmarked ('bookmark') area, values are:
+				Text	(The default if no value is supplied)
+				Multiline
+				RichText
+				DateShort
+				DateLong
+				Long
+		data
+			An xpath query whose results yield the value to update 'bookmark' with.
+		break
+			True, then code breaks before execution of the 'insert' instruction.
+			Default = False.
+
+		Note 1:	Insert nodes with a dataFormat of 'Multiline' or 'RichText' must have a 'pattern' attribute 
+     			value as this value is used as a compact bookmark name.
+
+	Link nodes have the following attributes:
+		bookmark
+			The name of a Bookmark whose contents will be replaced with a Word Ref Field.
+		pattern
+			A unique name assigned to the bookmark.
+		patternData
+			An xpath query that yields a value to use to generate a unique bookmark named based on the contents
+			of an assessment report node.
+		source
+			The book used in the Ref Field to specify the Bookmarked Range that is the source of the 
+			displayed text.
+-->
+	<!--
+		<insert bookmark		=""
+				pattern			=""
+				deleteIfNull	=""
+				editable		="False"
+				dataFormat		="Text"
+				data			=""
+				break			="False"/>
+	-->
+	<!--
+		<add buildingBlock		=""
+				 bookmark			=""
+				 extendBookmark		="True"
+				 where				=""
+		         buildingBlockN		=""
+				 bookmarkN			=""
+				 extendBookmarkN	="True"
+				 whereN				=""
+			 	 deleteIfNull		="False"
+				 pattern			=""
+				 break				="False"
+			 	 test				="">
+			</add>
+	-->
+<instructions>
+	<actions>
+		<insert bookmark	="assessmentNumber"
+				dataFormat	="Long"
+				data		="/Assessment/assessmentNumber"/>
+
+		<insert bookmark	="P_name"
+				dataFormat	="Text"
+				data		="/Assessment/provider/name"/>
+
+		<insert bookmark	="P_id"
+				dataFormat	="Text"
+				data		="/Assessment/provider/id"/>
+
+		<insert bookmark	="P_A_multilineAddress"
+				pattern		="P_A_m"
+				dataFormat	="Multiline"
+				data		="/Assessment/provider/addresses/multilineAddress"/>
+
+		<insert bookmark	="P_A_addressesNarrative"
+				pattern		="P_A_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/provider/addresses/addressesNarrative"/>
+
+		<insert bookmark	="assessor"
+				dataFormat	="Text"
+				data		="/Assessment/assessor"/>
+
+		<insert bookmark	="legislation"
+				dataFormat	="Text"
+				data		="/Assessment/legislation"/>
+
+		<insert bookmark	="dateAssessed"
+				dataFormat	="DateLong"
+				data		="/Assessment/dateAssessed"/>
+
+		<insert bookmark	="lastDateAssessed"
+				deleteIfNull="lastDateAssessed"
+				dataFormat	="DateLong"
+				data		="/Assessment/lastDateAssessed"/>
+
+		<insert bookmark	="disclaimer"
+				dataFormat	="Text"
+				data		="/Assessment/disclaimer"/>
+
+		<insert bookmark	="purpose"
+				dataFormat	="Text"
+				data		="/Assessment/purpose"/>
+
+		<insert bookmark	="ES_narrative"
+				pattern		="ES_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/narrative"/>
+
+		<insert bookmark	="ES_OCAH_dateFirstApproved"
+				deleteIfNull="Date_First_Approved"
+				dataFormat	="DateLong"
+				data		="/Assessment/executiveSummary/organisationalContextAndHistory/dateFirstApproved"/>
+
+		<!-- -->
+		<add buildingBlockN	="ES Approved Services n"
+			 bookmarkN		="Approved_Services"
+			 whereN			="AfterLastParagraph"
+			 test			="/Assessment/executiveSummary/organisationalContextAndHistory/services/serviceName">
+
+			<insert bookmark	="ES_OCAH_SERV_srvName"
+					dataFormat	="Text"
+					data		="/Assessment/executiveSummary/organisationalContextAndHistory/services[%1]/serviceName"/>
+		</add>
+
+		<insert bookmark	="ES_OCAH_legalStructure"
+				deleteIfNull="ES_OCAH_legalStructure"
+				dataFormat	="Text"
+				data		="/Assessment/executiveSummary/organisationalContextAndHistory/legalStructure"/>
+
+		<insert bookmark	="ES_OCAH_narrative"
+				pattern		="ES_OCAH_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/organisationalContextAndHistory/narrative"/>
+
+		<insert bookmark	="ES_process_narrative"
+				pattern		="ES_p_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/process/narrative"/>
+
+		<!--Add the repeating Key Findings Building Block-->
+		<add buildingBlockN	="ES Key Findings n"
+			 bookmarkN		="ES_keyFindings"
+			 whereN			="AfterLastParagraph"
+			 deleteIfNull	="ES_keyFindings"
+			 test			="/Assessment/report/standard">
+
+			<insert bookmark	="ES_kf_fullDescription"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[%1]/fullDescription"/>
+
+			<link bookmark	="ES_kf_conclusion"
+			      pattern	="ES_kf_conclusion%1"
+				  source	="R_S%1_c"/>
+		</add>
+
+		<insert bookmark	="ES_AS_narrative"
+				pattern		="ES_AS_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/narrative"/>
+
+		<insert bookmark	="ES_AS_assessmentStatus"
+				dataFormat	="Text"
+				data		="/Assessment/executiveSummary/assessmentSummary/assessmentStatus"/>
+
+		<insert bookmark	="ES_AS_approvalStatus"
+				dataFormat	="Text"
+				data		="/Assessment/executiveSummary/assessmentSummary/approvalStatus"/>
+
+		<insert bookmark	="ES_AS_conditions"
+				pattern		="ES_AS_c"
+				deleteIfNull="ES_AS_conditions_paragraph"
+				editable	="False"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/conditions"/>
+
+		<!--Add the repeating Remedial Actions Building Block-->
+		<add buildingBlockN	="ES Remedial Action n"
+			 bookmarkN		="Remedial_Actions"
+			 whereN			="AtEndOfRange"
+			 deleteIfNull	="Remedial_Actions"
+			 test			="/Assessment/report/standard[remedialActions/standardsForApproval/section != '']">
+
+			<insert bookmark	="ES_ra_standard"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[remedialActions/standardsForApproval/section != ''][%1]/shortDescription"/>
+
+			<insert bookmark	="ES_ra_description"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[remedialActions/standardsForApproval/section != ''][%1]/description"/>
+
+			<!--Add Remedial Actions Sections-->
+			<add buildingBlockN	="ES Remedial Action Section n"
+				 bookmarkN		="Remedial_Actions_SFA"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="Remedial_Actions_SFA"
+			     test			="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/../..)[%1]/remedialActions/standardsForApproval">
+
+				<insert bookmark	="ES_ra_section"
+						dataFormat	="Text"
+						data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/../..)[%1]/remedialActions[%2]/standardsForApproval/section"/>
+
+				<insert bookmark	="ES_ra_action"
+						dataFormat	="Text"
+						data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/../..)[%1]/remedialActions[%2]/standardsForApproval/action"/>
+
+				<insert bookmark	="ES_ra_requiredBy"
+						dataFormat	="DateShort"
+						data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/../..)[%1]/remedialActions[%2]/standardsForApproval/requiredBy"/>
+
+				<insert bookmark	="ES_ra_endDate"
+						deleteIfNull="ES_ra_endDate"
+						dataFormat	="DateShort"
+						data		="(/Assessment/report/standard/remedialActions/standardsForApproval[section != '']/../..)[%1]/remedialActions[%2]/standardsForApproval/endDate"/>
+			</add>
+		</add>
+
+		<!--Executive Summary Improvements Required-->
+		<add buildingBlockN	="ES IR n"
+			 bookmarkN		="ES_IR_Table"
+			 whereN			="AtEndOfRange"
+			 deleteIfNull	="Improvements_Required"
+			 test			="/Assessment/report/standard[improvementsRequired/section != '']">
+
+			<insert bookmark	="ES_ir_standard"
+					dataFormat	="Text"
+					data		="(/Assessment/report/standard[improvementsRequired/section != ''])[%1]/shortDescription"/>
+
+			<insert bookmark	="ES_ir_description"
+					dataFormat	="Text"
+					data		="(/Assessment/report/standard[improvementsRequired/section != ''])[%1]/description"/>
+
+			<!--Executive Summary Improvements Required Section-->
+			<add buildingBlockN	="ES IR Section n"
+				 bookmarkN		="Improvements_Required_Section"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="Improvements_Required_Section"
+				 break="False"
+			     test			="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/improvementsRequired">
+
+				<insert bookmark	="ES_ir_section"
+						dataFormat	="Text"
+						data		="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/improvementsRequired[%2]/section"/>
+
+				<insert bookmark	="ES_ir_action"
+						dataFormat	="Text"
+						data		="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/improvementsRequired[%2]/action"/>
+
+				<insert bookmark	="ES_ir_endDate"
+						deleteIfNull="ES_ir_endDate"
+						editable	="False"
+						dataFormat	="DateShort"
+						data		="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/improvementsRequired[%2]/endDate"/>
+			</add>
+
+			<link bookmark		="ES_ir_improvementsRequiredBy"
+			      pattern		="ES_ir_irb%1"
+				  patternData	="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/standardID"
+				  source		="R_S#1_ir_requiredBy"/>
+		</add>
+
+		<!--Suggestions For Quality Enhancements Section-->
+		<!-- Deleted: deleteIfNull	="SF_Quality_Enhancements"-->
+		<!-- Changed: whereN="AfterLastParagraph" to "AtEndOfRange"-->
+		<add buildingBlock	="ES SFQE 1"
+			 bookmark		="SF_Quality_Enhancements"
+			 where			="ReplaceRange"
+			 buildingBlockN	="ES SFQE n"
+			 bookmarkN		="ES_sfqe_block"
+			 whereN			="AtEndOfRange"
+			 refresh 		="True"
+			 refreshDeleteBM="ES_sfqe_block"
+			 refreshQuery   ="/Assessment/report/standard/suggestionsForQualityEnhancement/narrative"
+			 refreshTargetBM="R_S#1_sfqe_n"
+			 refreshBMData	="/Assessment/report/standard[%1]/standardID"
+			 break="False"
+			 test			="/Assessment/report/standard[suggestionsForQualityEnhancement/narrative != '']">
+
+			<insert bookmark	="ES_sfqe_fullDescription"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[suggestionsForQualityEnhancement/narrative != ''][%1]/fullDescription"/>
+
+			<link bookmark		="ES_sfqe_narrative"
+				  pattern		="ES_S%1_sfqe_n"
+				  patternData	="/Assessment/report/standard[suggestionsForQualityEnhancement/narrative != ''][%1]/standardID"
+				  source		="R_S#1_sfqe_n"/>
+		</add>
+
+		<insert bookmark	="ES_sfqe_sfqe"
+				pattern		="ES_sfqe_n"
+				editable	="True"
+				dataFormat	="RichText"
+				data		="/Assessment/executiveSummary/assessmentSummary/suggestionsForQualityEnhancement/narrative"/>
+
+		<!--Add Report blocks-->
+		<add buildingBlockN	="Report Block"
+			 bookmarkN		="Report_Block"
+			 whereN			="AfterLastParagraph"
+			 deleteIfNull	="Report_Block"
+			 test			="/Assessment/report/standard[standardID != '']">
+
+			<!--The bookmark name is defined in the Report Building Block, but we need a unique bookmark name for
+				each Finding section of each Report section. So rename the bookmark defined in the Building Block.-->
+			<rename oldName	="R_Findings"
+					newName	="R_Findings_%1"/>
+			<rename oldName	="R_Findings_first_insert"
+					newName	="R_Findings_first_insert_%1"/>
+
+			<insert bookmark	="R_fullDescription"
+					dataFormat	="Text"
+					data		="/Assessment/report/standard[%1]/fullDescription"/>
+
+			<insert bookmark	="R_text"
+					pattern		="R_S%1_t"
+					dataFormat	="RichText"
+					data		="/Assessment/report/standard[%1]/text"/>
+
+			<!--Add Standard Sections-->
+			<add buildingBlockN	="R Section Text n"
+				 bookmarkN		="R_standard_section"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="R_standard_section"
+				 test			="/Assessment/report/standard[%1]/sectionText">
+
+				<insert bookmark	="R_sectionNumber"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/sectionText[%2]/sectionNumber"/>
+
+				<insert bookmark	="R_narrative"
+						pattern		="R_S%1_ST%2_n"
+						dataFormat	="RichText"
+						data		="/Assessment/report/standard[%1]/sectionText[%2]/narrative"/>
+			</add>
+
+			<!--Process And Context-->
+			<insert bookmark	="R_pac_narrative"
+					pattern		="R_S%1_pac_n"
+					deleteIfNull="R_Proccess_And_Context"
+					editable	="True"
+					dataFormat	="RichText"
+					data		="/Assessment/report/standard[%1]/processesAndContext/narrative"/>
+
+			<!--Add Findings Sections.-->
+			<add buildingBlock	="R Findings n"
+				 bookmark		="R_Findings_first_insert_%1"
+				 where			="AtEndOfRange"
+				 extendBookmark	="False"
+				 buildingBlockN	="R Findings n"
+				 bookmarkN		="R_findings_section"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="R_Findings_%1"
+			     pattern		="R_std%1_find_sect%2"
+				 test			="/Assessment/report/standard[%1]/findings">
+
+				<insert bookmark	="R_findings_sectionNumber"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/findings[%2]/sectionNumber"/>
+
+				<insert bookmark	="R_findings_narrative"
+						pattern		="R_S%1_F%2_n"
+						editable	="True"
+						dataFormat	="RichText"
+						data		="/Assessment/report/standard[%1]/findings[%2]/narrative"/>
+			</add>
+
+			<!--Conclusion-->
+			<insert bookmark	="R_conclussion_narrative"
+					pattern		="R_S%1_c"
+					deleteIfNull="R_Conclussion"
+					editable	="True"
+					dataFormat	="RichText"
+					break="False"
+					data		="/Assessment/report/standard[%1]/conclusion/narrative"/>
+
+			<!--Add Remedial Actions Sections-->
+			<add buildingBlockN	="R Remedial Actions n"
+				 bookmarkN		="R_ra_row"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="R_Remedial_Actions"
+				 test			="/Assessment/report/standard[%1]/remedialActions">
+
+				<insert bookmark	="R_ra_section"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/remedialActions[%2]/standardsForApproval/section"/>
+
+				<insert bookmark	="R_ra_action"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/remedialActions[%2]/standardsForApproval/action"/>
+
+				<insert bookmark	="R_ra_requiredBy"
+						dataFormat	="DateShort"
+						data		="/Assessment/report/standard[%1]/remedialActions[%2]/standardsForApproval/requiredBy"/>
+
+				<insert bookmark	="R_ra_endDate"
+						deleteIfNull="R_ra_endDate"
+						dataFormat	="DateShort"
+						data		="/Assessment/report/standard[%1]/remedialActions[%2]/standardsForApproval/endDate"/>
+			</add>
+
+			<!--Add Improvements Required-->
+			<add buildingBlockN	="R Improvements Required n"
+				 bookmarkN		="R_Improvements_Required"
+				 whereN			="AtEndOfRange"
+				 deleteIfNull	="R_IR_Block"
+				 test			="/Assessment/report/standard[%1]/improvementsRequired">
+
+				<!--Improvements Required Table Row-->
+				<insert bookmark	="R_ir_section"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/improvementsRequired[%2]/section"/>
+
+				<insert bookmark	="R_ir_action"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/improvementsRequired[%2]/action"/>
+
+				<insert bookmark	="R_ir_endDate"
+						deleteIfNull="R_ir_endDate"
+						dataFormat	="DateShort"
+						data		="/Assessment/report/standard[%1]/improvementsRequired[%2]/endDate"/>
+			</add>
+
+			<!--Improvements Required By-->
+			<insert bookmark	="R_ir_requiredBy"
+			        pattern     ="R_S#1_ir_requiredBy"
+					patternData ="/Assessment/report/standard[%1]/standardID"
+					editable	="True"
+					dataFormat	="RichText"
+					data		="/Assessment/report/standard[%1]/improvementsRequiredBy"/>
+
+			<!--Suggestions For Quality Enhancements-->
+			<insert bookmark	="R_sfqe_sfqe"
+					pattern		="R_S#1_sfqe_n"
+					patternData ="/Assessment/report/standard[%1]/standardID"
+					deleteIfNull="R_SFQE"
+					editable	="True"
+					dataFormat	="RichText"
+					break="False"
+					data		="/Assessment/report/standard[%1]/suggestionsForQualityEnhancement/narrative"/>
+		</add>
+	</actions>
+
+	<userInterface>
+
+		<!--These queries are used to drive the Word RDA, Fluent UI, custom RDA Tab.-->
+		<!--buildDropDown:
+				Retrieve the nodes used to build the DropDown list in the primary Group control.
+			visibleToggleButtons:
+				Retrieve the nodes for the selected DropDown list Item. This data is used to determine 
+			    how many ToggleButton controls are  required and which of those controls are visible.
+			parentNodeForAddDelete:
+				Retrieve the parent node for adding and deleting 'findings' sub nodes. The parent 
+			    nodes 'shortDescription' matches the Item selected in the DropDown control.
+			toggleButtonSiblings:
+				Retrieves all sibling nodes for the node selected by the pressed ToggleButton control.
+				When the node is being deleted it allows us to determine and select the node from the 
+			    siblings list, or if the node is being added it allows us to select the node from the 
+				siblings list, the new 'findings' node tree needs to be added before.
+			nextSiblingDifferentTag:
+				Retrieves a node with a different tag which is the used to do an InsertBefore to add a 
+				'findings' node to its parent node. This is used when a 'standard' (the parent node) 
+			    has no existing 'findings' child nodes.
+			queryDeleteXML:
+		-->
+		<queries buildDropDown			="/Assessment/standardSection/standardShortDescription"
+				 visibleToggleButtons	="/Assessment/standardSection[standardShortDescription='%1']/availableSection"
+		         parentNodeForAddDelete	="/Assessment/report/standard[shortDescription='%1']"
+				 toggleButtonSiblings	="/Assessment/report/standard[shortDescription='%1']/findings/sectionNumber"
+		         nextSiblingDifferentTag="/Assessment/report/standard[shortDescription='%1']/conclusion"
+				 deleteXML				="/Assessment/report/standard[shortDescription='%1']/findings[%2]"/>
+
+		<!--This block is executed when one of the ToggleButtons is pressed when its state is unselected (there is no 
+		    'findings' node for it in the parent 'standards' node and it has no corresponding document content.-->
+		<addContent>
+			<!--primaryBookmark
+					Is the name of a bookmark used to indicate the presence of preface/header text that introduces variable 
+					data. If the bookmark is found there is no further action required. When the bookmark is not found, that 
+					means the preface/header text does not exist either, so we will need to insert it (see 'setupBuildingBlock').
+				secondaryBookmarks
+					Is a comma delimited list of bookmark names. The bookmarks represent candidate locations where a 
+					Building Block containing the preface/header text should be inserted. We have to have a list of 
+					bookmarks because parts of the document may not be present because they contain no data (just like 
+					the section we are trying to create here!). In which case we try the next bookmark in the list,
+					and so on.
+				renameBookmarks
+					Is a comma delimited list of bookmark names. The bookmarks represent locations of previously inserted
+					Building Blocks, which in turn contain further data. So when a Building Block is inserted into an 
+					Assessment Report, either before or between previously inserted Building Blocks the bookmarks for the 
+					blocks of text (the contents of the previously inserted Building Blocks) that follow the insertion point 
+					must be renamed. This makes a hole for the new Building Block to be inserted using a bookmark name that 
+					was previously in use.
+				setupBuildingBlock
+					Is the name of a Building Block that is inserted into the Assessment Report when the 'primaryBookmark'
+					is not present.-->
+
+			<!--The '%1' denotes the index number of the 'standard' within its 'report' parent node.-->
+			<setup primaryBookmark		="R_Findings_%1"
+				   secondaryBookmarks	="R_S%1_pac_n"
+				   renameBookmarks		="R_std%1_find_sect%2,R_S%1_F%2_n"
+				   setupBuildingBlock	="R Findings Header"/>
+
+			<!--These 'rename' actions only do something when a Building Block is inserted by the preceding 'setup' action.-->
+			<rename oldName	="R_Findings"
+					newName	="R_Findings_%1"/>
+			<rename oldName	="R_Findings_first_insert"
+					newName	="R_Findings_first_insert_%1"/>
+
+			<!--Add a single Findings entry to the selected Report 'Findings' block.-->
+			<add buildingBlock	="R Findings n"
+				 bookmark		="R_Findings_first_insert_%1"
+				 where			="AtEndOfRange"
+				 extendBookmark	="False"
+				 buildingBlockN	="R Findings n"
+				 bookmarkN		="R_std%1_find_sect%2"
+				 whereN			="AtEndOfRange"
+				 extendBookmarkN="False"
+				 pattern		="R_std%1_find_sect%2"
+				 test			="/Assessment/report/standard[%1]/findings[%2]">
+
+				<insert bookmark	="R_findings_sectionNumber"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/findings[%2]/sectionNumber"/>
+
+				<!--The dataFormat definition here conflicts with the definition in the main 'actions' node above. This
+					is so we can set a default value, which can not be done with a RichText definition. When the xml
+					is updated prior to returning it to the Middleware Web Service it is the main Actions node 
+					definition that will be used, not this one.-->
+				<insert bookmark	="R_findings_narrative"
+						pattern		="R_S%1_F%2_n"
+						editable	="True"
+						dataFormat	="Text"
+						data		="/Assessment/report/standard[%1]/findings[%2]/narrative"/>
+			</add>
+		</addContent>
+
+		<!--itemBookmark:
+				Is the name of a Bookmark whose Range is a single Table Row that is to be deleted.
+				This is used when there is more than one row of data.
+			unusedBlockBookmark
+				Is the name of a Bookmark whose Range is the Table preface text, Table header Row and a single data Row.
+				This is used when deleting the only data Row in the Table.
+			renameBookmarks
+				This is a comma delimited list of Bookmark names. The Bookmarks are renamed once the Row of data has been
+				deleted from the Table when deleting the entire Table. If the entire Table is deleted no Bookmarks are
+				renamed.
+		-->
+		<deleteContent itemBookmark			="R_std%1_find_sect%2"
+					   unusedBlockBookmark	="R_Findings_%1"
+					   renameBookmarks		="R_std%1_find_sect%2,R_S%1_F%2_n"/>
+	</userInterface>
+</instructions>

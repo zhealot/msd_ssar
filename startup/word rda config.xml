@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<configuration>
+
+	<!--
+		'state' should be False when deployed in a production environment
+	-->
+	<development isDevelopment	="True"
+				 promptForFile	="False"/>
+
+	<debug logging					="False"
+		   closeWordHTMLDocument	="True"
+		   validateInstructionsFile	="False"/>
+
+	<!--
+		enable has a True/False value
+	-->
+	<eventLog enable="True"
+			  path	="D:\SSAS\Logs\"
+			  name	="msd rda addin.log"/>
+
+	<!--
+		This is the schema the Remedy '.rep' files xml is validated against
+	-->
+	<schema path="D:\SSAS\Program files\"
+			manifest1="assessmentReport m1.xsd"
+			manifest2="assessmentReport m2.xsd"
+			manifest3="assessmentReport m3.xsd"
+			ssar="assessmentReport ssar.xsd"/>
+
+	<!--
+		These are the templates used to generate an Assessment Report
+	-->
+	<templates path		="D:\SSAS\Program files\"
+			   manifest1="assessment report m1.dotm"
+			   manifest2="assessment report m2 (v4).dotm"
+			   manifest3="assessment report m3 (v9).dotm"
+			   ssar="assessment report ssar (v1).dotm"/>
+
+	<!--
+		This is the temporary file used to supply RichText to an Assessment Report
+	-->
+	<wordHTMLTextFile path	="D:\SSAS\Temp\"
+					  name	="from rda temp %1.html"
+					  delete="False"/>
+
+	<!--
+		The name given to the generated assessment report document when it is saved prior to submitting the xml 
+		to the webservice. This is really a work around for a problem experienced by MSD, where after submitting
+		the xml to the webservice, closing the document left an orphan Word window that was not included in Words
+		Documents object count!
+	-->
+	<wordAssessmentReportFile	path	="D:\SSAS\Temp\"
+								name	="generated rda-asmntrept %1.docx"/>
+
+	<!--
+		The names given to the Full Report and Summary Report files created from the Base Report (a standard assessment).
+	-->
+	<wordFullReportFile			path	="D:\SSAS\Temp\"
+								name	="full report - %1.docx"/>
+	<wordSummaryReportFile		path	="D:\SSAS\Temp\"
+								name	="summary report - %1.docx"/>
+
+	<!--
+		This is the temporary file used to convert RichText in the Assessment Report to xhtml,
+		which in turn is used to update the xml which is returned to the remedy/rda middleware.
+	-->
+	<wordXHTMLTextFile path	="D:\SSAS\Temp\"
+					   name	="to rda temp %1.html"
+					   delete="False"/>
+	<!--
+		This file is only required for debugging and testing. It contains the xml extracted 
+		(and corrected) from the Remedy '.rep' html file. 
+	-->
+	<rdaXMLFile enable	="True"
+				path	="D:\SSAS\Temp\"
+				name	="rda extracted data %1.xml"/>
+
+	<!--
+		This file is only required for debugging and testing. It contains the updated assessment 
+		report xml that will be returned to the Remedy/RDA middleware web service.
+	-->
+	<xmlTextFile enable	="True"
+				 path	="D:\SSAS\Temp\"
+				 name	="submitted data %1.xml"/>
+
+	<!--
+		These are the 'rda instruction.xml' files used to generate an Assessment Report.
+	-->
+	<wordInstructions path		="D:\SSAS\Program files\"
+					  manifest1	="rda instructions m1.xml"
+					  manifest2	="rda instructions m2 (v6).xml"
+					  manifest3	="rda instructions m3 (v15).xml"
+					  ssar="rda instructions ssar (v1).xml"/>
+
+	<!--
+		This is the password used to ReadOnly protect an Assessment Report.
+		The 'generator' attribute is a series of comma delimited xpath queries. Each query is run against the
+		Assessment Report xml. The results of each query are then concatenated and used as the password.
+	-->
+	<documentProtection enable		="True"/>
+<!--
+	<documentProtection generator	="/Assessment/assessmentNumber,/Assessment/provider/id"
+						reverse		="False"
+						enable		="True"/>
+-->
+
+	<!--
+		These validation tests are performed against whatever Actions file is loaded (rda instructions m? (v?).xml).
+	    Only those Validations that match the manifest version of the Actions file will actually be executed.
+	--> 
+	<validation>
+		<validate manifestVersion	="3"
+				  query				="//dataFormat[.='RichText']/../pattern[.='']"
+				  expectedResult	="None"/>
+	</validation>
+</configuration>
