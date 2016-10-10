@@ -1,0 +1,17 @@
+06-Oct-16 02:28 PM
+Entry point: 'm_wordApp_DocumentOpen' event handler in 'ApplicationEvents' of
+'ar manager.dotm'.
+Entry point function: 'GenerateAssessmentReport' in
+'modGenerateAssessmentReports' of 'ar manager.dotm'
+
+05-Oct-16 12:33 PM	
+After deployment (copy rda.dotm/ar manager.dotm/ssar.dotm
+to Word startup folder), in Word VBE's Tools->Reference, set rda.dotm and
+ssar.domt refer to 'ar manager.dotm', BUT not the way around.
+
+10-Oct-16 12:32 PM
+Naming rule: 
+'g_': global variable, defined with 'Public'
+'m_': module variable, defiend with 'Private'
+'c_': constant, defined with 'Const'
+'mc_': module constant, defined with 'Private Const'

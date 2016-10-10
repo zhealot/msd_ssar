@@ -171,7 +171,7 @@ Private Sub GetExceptionTableInfo(ByVal newCriteria As Long, _
     For rowIndex = 1 To rowCount
         Set exceptionsRow = theTable.Rows(rowIndex)
 
-        ' Ignore the first fow as it is the table Header
+        ' Ignore the first row as it is the table Header
         If Not exceptionsRow.IsFirst Then
 
             ' Criteria number of the current row

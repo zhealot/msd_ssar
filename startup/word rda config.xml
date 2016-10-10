@@ -15,13 +15,13 @@
 		enable has a True/False value
 	-->
 	<eventLog enable="True"
-			  path	="D:\SSAS\Logs\"
+			  path	="D:\SSAS\RDA\Logs\"
 			  name	="msd rda addin.log"/>
 
 	<!--
 		This is the schema the Remedy '.rep' files xml is validated against
 	-->
-	<schema path="D:\SSAS\Program files\"
+	<schema path="D:\SSAS\RDA\"
 			manifest1="assessmentReport m1.xsd"
 			manifest2="assessmentReport m2.xsd"
 			manifest3="assessmentReport m3.xsd"
@@ -30,7 +30,7 @@
 	<!--
 		These are the templates used to generate an Assessment Report
 	-->
-	<templates path		="D:\SSAS\Program files\"
+	<templates path		="D:\SSAS\RDA\"
 			   manifest1="assessment report m1.dotm"
 			   manifest2="assessment report m2 (v4).dotm"
 			   manifest3="assessment report m3 (v9).dotm"
@@ -39,7 +39,7 @@
 	<!--
 		This is the temporary file used to supply RichText to an Assessment Report
 	-->
-	<wordHTMLTextFile path	="D:\SSAS\Temp\"
+	<wordHTMLTextFile path	="D:\SSAS\RDA\Temp\"
 					  name	="from rda temp %1.html"
 					  delete="False"/>
 
@@ -49,22 +49,22 @@
 		the xml to the webservice, closing the document left an orphan Word window that was not included in Words
 		Documents object count!
 	-->
-	<wordAssessmentReportFile	path	="D:\SSAS\Temp\"
+	<wordAssessmentReportFile	path	="D:\SSAS\RDA\Temp\"
 								name	="generated rda-asmntrept %1.docx"/>
 
 	<!--
 		The names given to the Full Report and Summary Report files created from the Base Report (a standard assessment).
 	-->
-	<wordFullReportFile			path	="D:\SSAS\Temp\"
+	<wordFullReportFile			path	="D:\SSAS\RDA\Temp\"
 								name	="full report - %1.docx"/>
-	<wordSummaryReportFile		path	="D:\SSAS\Temp\"
+	<wordSummaryReportFile		path	="C:\Program Files\RDA\Temp\"
 								name	="summary report - %1.docx"/>
 
 	<!--
 		This is the temporary file used to convert RichText in the Assessment Report to xhtml,
 		which in turn is used to update the xml which is returned to the remedy/rda middleware.
 	-->
-	<wordXHTMLTextFile path	="D:\SSAS\Temp\"
+	<wordXHTMLTextFile path	="D:\SSAS\RDA\Temp\"
 					   name	="to rda temp %1.html"
 					   delete="False"/>
 	<!--
@@ -72,7 +72,7 @@
 		(and corrected) from the Remedy '.rep' html file. 
 	-->
 	<rdaXMLFile enable	="True"
-				path	="D:\SSAS\Temp\"
+				path	="D:\SSAS\RDA\Temp\"
 				name	="rda extracted data %1.xml"/>
 
 	<!--
@@ -80,13 +80,13 @@
 		report xml that will be returned to the Remedy/RDA middleware web service.
 	-->
 	<xmlTextFile enable	="True"
-				 path	="D:\SSAS\Temp\"
+				 path	="D:\SSAS\RDA\Temp\"
 				 name	="submitted data %1.xml"/>
 
 	<!--
 		These are the 'rda instruction.xml' files used to generate an Assessment Report.
 	-->
-	<wordInstructions path		="D:\SSAS\Program files\"
+	<wordInstructions path		="D:\SSAS\RDA\"
 					  manifest1	="rda instructions m1.xml"
 					  manifest2	="rda instructions m2 (v6).xml"
 					  manifest3	="rda instructions m3 (v15).xml"

@@ -31,6 +31,10 @@ Private Const mc_infopathWrapperEnd1    As String = "</tns1:sendInfopathToRemedy
 Private Const mc_soapBodyEnd            As String = "</SOAP-ENV:Body>"
 Private Const mc_soapEnvelopeEnd        As String = "</SOAP-ENV:Envelope>"
 
+'Public Variables to maintain the session through GET requests
+Public mrhSession2 As Variant
+Public mrhLast2 As Variant
+
 '=======================================================================================================================
 ' Procedure:    SubmitXMLToWebService
 ' Purpose:      Using soap submit the modified Assessment Report xml to the Remedy/RDA webservice.
@@ -67,6 +71,17 @@ Public Function SubmitXMLToWebService(Optional ByVal suppressErrors As Boolean =
     request.AddHeader "SOAPAction", "InfopathWebServiceService"
     request.Format = WebFormat.XML
     request.Body = BuildSOAPMessage
+
+    'Calls the Function that does the two GET requests and stores
+    'the MRH session cookie values to the public variables
+    GetMRHSession
+    
+    'Debug.Print "MRHsession cookie for the post request:" & mrhSession2
+    'Debug.Print "LastMRH_Session cookie for the post request:" & mrhLast2
+           
+    'MRH session cookies added to the POST request
+    request.AddCookie "MRHSession", mrhSession2
+    request.AddCookie "LastMRH_Session", mrhLast2
 
     ' Send request to the webservice.
     ' If the response is redirected assume that its the F5 and that we need to establish
@@ -248,3 +263,100 @@ Private Function WebClientErrorNumberToText(ByVal webClientErrorNumber As WebSta
         WebClientErrorNumberToText = "Unsupported Media Type"
     End Select
 End Function ' WebClientErrorNumberToText
+
+'Function to create session through GET requests that uses MRHSession and LastMRH_Session cookies
+'The MRHSession and LastMRH_Session cookie values for the second request are stored in the public variables
+Public Function GetMRHSession()
+    Const c_proc As String = "modSubmitToRemedyRDA.GetMRHSession"
+
+    Dim client1      As WebClient
+    Dim client2      As WebClient
+    Dim request1     As WebRequest
+    Dim response1    As WebResponse
+    Dim request2     As WebRequest
+    Dim response2    As WebResponse
+    Dim hostUrl As String
+    Dim compUrl As String
+    Dim urlArraySplit() As String
+    Dim mrhSession1 As Variant
+    Dim mrhLast1 As Variant
+
+    On Error GoTo Do_Error
+   
+    compUrl = g_rootData.MainSaveURL
+    urlArraySplit = Split(compUrl, "nz/")
+    hostUrl = urlArraySplit(0) & "nz"
+    ' Create WebClient and WebRequest objects
+    Set client1 = New WebClient
+    Set client2 = New WebClient
+    Set request1 = New WebRequest
+    Set request2 = New WebRequest
+
+    ' Setup the WebClient object
+    client1.BaseUrl = hostUrl & "/foo/"
+    client2.BaseUrl = hostUrl & "/my.policy"
+    client1.EnableAutoProxy = False
+    client1.FollowRedirects = False
+    client2.EnableAutoProxy = False
+    client2.FollowRedirects = False
+
+    
+    
+    
+    request1.Method = WebMethod.HttpGet
+    request1.Format = WebFormat.plainText
+    request1.Body = "GET request to a random url in RDA to retrieve MRH session cookies"
+    request2.Method = WebMethod.HttpGet
+    request2.Format = WebFormat.plainText
+    request2.Body = "GET request to my.policy in RDA to retrieve MRH session cookies. Adding the MRH session cookies from the previous GET request."
+    
+    ' Send GET request to the webservice.
+    Set response1 = client1.Execute(request1)
+
+    'Check the response status code is not a redirect
+    'Found ther error handling code in http://stackoverflow.com/questions/1038006/good-patterns-for-vba-error-handling
+    If response1.StatusCode <> 302 Then
+        Err.Raise vbObjectError + 513, "modSubmitToRemedyRDA.GetMRHSession", "Did not return a redirect response for first Get request"
+        'Debug.Print "Get Request 1 status code:" & response1.StatusCode
+        'Debug.Print "MRH session cookie in the first request not sent"
+    End If
+    
+    mrhSession1 = WebHelpers.FindInKeyValues(response1.Cookies, "MRHSession")
+    mrhLast1 = WebHelpers.FindInKeyValues(response1.Cookies, "LastMRH_Session")
+    'Debug.Print "MRH Session:" & mrhSession1
+    'Debug.Print "Last MRH:" & mrhLast1
+    
+    'The Cookies from the response of the first
+    'request is added as cookies to the second request
+    request2.AddCookie "MRHSession", mrhSession1
+    request2.AddCookie "LastMRH_Session", mrhLast1
+    
+    Set response2 = client2.Execute(request2)
+
+   'Check the response status code is not a redirect
+   If response2.StatusCode <> 302 Then
+        Err.Raise vbObjectError + 514, "modSubmitToRemedyRDA.GetMRHSession", "Did not return a redirect response for second Get request"
+        'Debug.Print "Get Request 2 status code:" & response2.StatusCode
+        'Debug.Print "MRH session cookie in the first request not sent"
+    End If
+    'Check the response to check the redirect
+    'The MRH session cookies for the first get request are stored
+    
+    mrhSession2 = WebHelpers.FindInKeyValues(response2.Cookies, "MRHSession")
+    mrhLast2 = WebHelpers.FindInKeyValues(response2.Cookies, "LastMRH_Session")
+    'Debug.Print "MRH Session:" & mrhSession2
+    'Debug.Print "Last MRH:" & mrhLast2
+    
+
+
+Do_Exit:
+    Exit Function
+
+
+Do_Error:
+    ErrorReporter c_proc
+    Resume Do_Exit
+    
+
+End Function ' GetMRHSession
+

@@ -699,6 +699,13 @@
 			</do>
 		</do>
 
+		<!--Update the Accreditation Status DropDown ColourMap only if this is a Site Assessment-->
+		<if condition="/Assessment[disclaimer = '']">
+			<else>
+				<colourMap	bookmark	="AS_status"/>
+			</else>
+		</if>
+
 		<!--Overview: Ministries and Agencies-->
 		<copy	toBookmark		="O_ministriesAndAgencies"
 				fromBookmark	="AS_ministriesAndAgencies"/>

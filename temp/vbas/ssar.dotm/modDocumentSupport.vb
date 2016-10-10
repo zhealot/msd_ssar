@@ -156,8 +156,16 @@ Public Sub ApplyColourMap(ByVal theRange As Word.Range, _
     ' We need to set the background colour differently if the range is in a table
     If theRange.Tables.Count > 0 Then
 
-        ' This sets the backround colour of the cell
-        theRange.Shading.BackgroundPatternColor = backgroundColour
+        ' If the table is a single cell table, again we need to set the background colour differently
+        If theRange.Information(wdEndOfRangeColumnNumber) > 1 Then
+
+            ' This sets the backround colour of just the cell in a multicell table
+            theRange.Shading.BackgroundPatternColor = backgroundColour
+        Else
+
+            ' This sets the background colour of the single cell table
+            theRange.Paragraphs(1).Shading.BackgroundPatternColor = backgroundColour
+        End If
     Else
 
         ' This sets the background colour of the paragraph
@@ -444,7 +452,7 @@ Public Function FillBookmarkRichText(ByVal info As ActionInsert) As Word.Range
 
         ' Paste the block of text into the rda Word document. This preserves and formatting from the original object.
         targetArea.Paste
-        
+
         ' Fix up bullet points in the last paragraph.
         ' When RichText is copied and pasted into the Assessment Report, the final paragraph mark is not copied from the
         ' html file. So if the final paragraph is bulleted we miss this, because we did not copy the paragraph mark. The
