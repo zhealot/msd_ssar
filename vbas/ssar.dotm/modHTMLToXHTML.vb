@@ -199,6 +199,7 @@ Public Sub RebuildBookmarks()
             End If
 
             ' The ONLY way to find Editable ranges is to use the Selection object
+			'### range has the .GoToEditableRange method, could look into it
             Selection.GoToEditableRange (wdEditorEveryone)
             Set editorRange = Selection.Range
 

@@ -137,6 +137,11 @@ End Property ' Counter
 ' Returns:      The query string with all placeholder character sequences replaced with the appropriate counter values.
 '===================================================================================================================================
 Friend Function UpdatePredicates(ByVal theQuery As String) As String
+	'### should check whether contains palceholder first
+	'If InStr(theQuery,"%")=0 Or InStr(theQuery,"!")=0 Then
+	'	UpdatePredicates = theQuery
+	'	Exit Function
+	'End If
     Const c_proc As String = "Counters.UpdatePredicates"
 
     Dim errorText   As String

@@ -1,0 +1,63 @@
+
+13-Oct-16 11:32 AM
+Unfinished job marked by '#TODO# in code
+Test code marked by '#DEBUG#
+
+13-Oct-16 10:42 AM
+Fix Bullet format: 'RestoreBullets' in 'modDocumentSupport'
+
+06-Oct-16 02:28 PM
+Entry point: 'm_wordApp_DocumentOpen' event handler in 'ApplicationEvents' of
+'ar manager.dotm'.
+Entry point function: 'GenerateAssessmentReport' in
+'modGenerateAssessmentReports' of 'ar manager.dotm'
+
+05-Oct-16 12:33 PM	
+After deployment (copy rda.dotm/ar manager.dotm/ssar.dotm
+to Word startup folder), in Word VBE's Tools->Reference, set rda.dotm and
+ssar.domt refer to 'ar manager.dotm', BUT not the way around.
+
+10-Oct-16 12:32 PM
+Naming rule: 
+'g_': global variable, defined with 'Public'
+'m_': module variable, defiend with 'Private'
+'c_': constant, defined with 'Const'
+'mc_': module constant, defined with 'Private Const'
+
+12-Oct-16 09:29 AM
+Global objects:
+Public g_wordEvents             As ApplicationEvents	' Hooks application level events
+Public g_eventLog               As LogIt	' Log file object should be accessed through the EventLog method
+Public g_configuration          As Configuration	' Used by all addins for configuration (environment) info
+Public g_rootData               As RootData	' Attribute derived data from the main xml Assessment node attributes
+
+Public g_htmlWordDocument       As Word.Document	' Word document used to store #TODO#
+Public g_xmlDocument            As MSXML2.DOMDocument60	' DOM Document for the extracted xml used to create the assessment report
+Public g_xmlInstructionData     As MSXML2.DOMDocument60	' DOM Document for the instruction file used to create the assessment report
+Public g_assessmentReport       As Word.Document	' Word document used for the actual assessment report
+Public g_htmlTextDocument       As HTMLDoc	' HTMLDoc object used to create the HTML document used as the rich text data source
+
+Public g_richTextData           As Scripting.Dictionary	' Rich text dictionary used as an index to the html document used as the data source
+
+
+
+
+
+
+
+
+
+
+### Thoughts for VSTO
+Exception handler: 
+    On Error GoTo Do_Error
+        bookmarkError = True
+        Set target = g_assessmentReport.bookmarks(bookmarkName).Range
+	...
+	...
+	...
+	Do_Error:
+		If bookmarkError Then
+			....
+		End If
+		LogError
