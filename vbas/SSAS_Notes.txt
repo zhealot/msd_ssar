@@ -1,4 +1,7 @@
 
+19-Oct-16 10:20 AM
+Refresh report: basically re-build report based on "/instructions/refresh" data.
+  
 13-Oct-16 11:32 AM
 Unfinished job marked by '#TODO# in code
 Test code marked by '#DEBUG#
@@ -13,9 +16,9 @@ Entry point function: 'GenerateAssessmentReport' in
 'modGenerateAssessmentReports' of 'ar manager.dotm'
 
 05-Oct-16 12:33 PM	
-After deployment (copy rda.dotm/ar manager.dotm/ssar.dotm
-to Word startup folder), in Word VBE's Tools->Reference, set rda.dotm and
-ssar.domt refer to 'ar manager.dotm', BUT not the way around.
+After deployment (copy rda.dotm/ar manager.dotm/ssar.dotm to Word startup folder), 
+in Word VBE's Tools->Reference, set rda.dotm and ssar.domt refer to 'ar manager.dotm', BUT not the way around.
+Set the folder that contains dotms as trusted loaction.
 
 10-Oct-16 12:32 PM
 Naming rule: 
@@ -31,11 +34,14 @@ Public g_eventLog               As LogIt	' Log file object should be accessed th
 Public g_configuration          As Configuration	' Used by all addins for configuration (environment) info
 Public g_rootData               As RootData	' Attribute derived data from the main xml Assessment node attributes
 
-Public g_htmlWordDocument       As Word.Document	' Word document used to store #TODO#
-Public g_xmlDocument            As MSXML2.DOMDocument60	' DOM Document for the extracted xml used to create the assessment report
-Public g_xmlInstructionData     As MSXML2.DOMDocument60	' DOM Document for the instruction file used to create the assessment report
+Public g_instructions           As Instructions		'Object instance of 'rda instructions ssar (v1).xml'
+Public g_xmlDocument            As MSXML2.DOMDocument60	' DOM Document for the extracted xml used to create the assessment report 	'rda extracted data 2016-Oct-05 11.25.37.xml'
+Public g_xmlInstructionData     As MSXML2.DOMDocument60	' DOM Document for the instruction file used to create the assessment report 'rda instructions ssar (v1).xml'
 Public g_assessmentReport       As Word.Document	' Word document used for the actual assessment report
-Public g_htmlTextDocument       As HTMLDoc	' HTMLDoc object used to create the HTML document used as the rich text data source
+								'xxxxx.docx', based on 'assessment report ssar (v1).dotm'
+Public g_htmlTextDocument       As HTMLDoc	' HTMLDoc object used to create the HTML document used as the rich text data source 	'from rda temp (an=101811 pid=62013) 2016-Oct-05 11.20.23.html'
+Public g_htmlWordDocument       As Word.Document	' Word document used to store #TODO# 											'from rda temp (an=101811 pid=62013) 2016-Oct-05 11.20.23.html' opend as Word document 
+								this is where rich text data is kept with leading and edning string (|||@@@), which is used to populate assessment report later.
 
 Public g_richTextData           As Scripting.Dictionary	' Rich text dictionary used as an index to the html document used as the data source
 

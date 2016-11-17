@@ -63,6 +63,7 @@ Attribute VB_Exposed = False
 '               E: innerword@xnet.co.nz
 '
 ' History:      01/06/16    1.  Created.
+'               17/11/16    2.  Modified, to delete wordings 'Site Assessement' of first page for non-Site Assessment reports, tao@allfields.co.nz
 '===================================================================================================================================
 Option Explicit
 Implements IAction
@@ -223,7 +224,13 @@ Private Sub IAction_BuildAssessmentReport()
 
             ' Replace the bookmarked text with the dataNodes value
             Set targetArea = UpdateBookmark(m_bookmark, m_bookmarkPattern, m_patternData, m_deleteIfNull, theText, m_editable)
-
+            'delete wordings 'Site Assessment' of first page if '/Assessment/disclaimer' has no content, tao@allfields.co.nz, 17/11/2016
+            If m_bookmark = "HB_siteAssessment" And theText = "" Then
+                Dim bmRg As Range 'range of bookmark 'HB_siteAssessment'
+                Set bmRg = g_assessmentReport.Bookmarks(m_bookmark).Range
+                bmRg.SetRange bmRg.Rows(1).Range.Start, bmRg.Start
+                bmRg.Text = ""
+            End If
         Case ssarDataFormatRichText
             EventLog "Updating (RichText) bookmark: " & m_bookmark, c_proc
 
@@ -291,7 +298,7 @@ Private Sub IAction_BuildAssessmentReport()
 
         ' Apply text and background colours based on the selected drop down value
         If m_coloured Then
-            ApplyColourMap g_assessmentReport.bookmarks(useBookmark).Range
+            ApplyColourMap g_assessmentReport.Bookmarks(useBookmark).Range
         End If
     End If
 
@@ -502,10 +509,10 @@ Private Sub IAction_UpdateDateXML()
             dataBookmarkName = g_counters.UpdatePredicates(dataBookmarkName)
 
             ' See if the Bookmark actually exists
-            If g_assessmentReport.bookmarks.Exists(dataBookmarkName) Then
+            If g_assessmentReport.Bookmarks.Exists(dataBookmarkName) Then
 
                 ' Retrieve the bookmark contents
-                Set dateInputArea = g_assessmentReport.bookmarks(dataBookmarkName).Range
+                Set dateInputArea = g_assessmentReport.Bookmarks(dataBookmarkName).Range
                 thedate = dateInputArea.Text
 
                 ' Null strings and valid dates are legal values
@@ -587,10 +594,10 @@ Private Sub CopyRichTextBlock()
     queryKey = mgrHTMLBookmarkedBlockLeadIn & g_counters.UpdatePredicates(m_dataSource) & mgrHTMLBookmarkNameEnd & vbCr
 
     ' Make sure the source Bookmark actually exists, if it is in a nested Add block it may not
-    If g_assessmentReport.bookmarks.Exists(sourceBookmark) Then
+    If g_assessmentReport.Bookmarks.Exists(sourceBookmark) Then
 
         ' Get a reference to the source Range
-        Set sourceArea = g_assessmentReport.bookmarks(sourceBookmark).Range
+        Set sourceArea = g_assessmentReport.Bookmarks(sourceBookmark).Range
 
         ' Set a Range object to the xhtml Word document so that we can add text to it
         Set target = g_xhtmlWordDoc.Content
@@ -670,7 +677,7 @@ Private Sub UpdatePlainText()
     sourceBookmark = g_counters.UpdatePredicates(sourceBookmark)
 
     ' Retrieve the bookmark contents
-    Set dataInputArea = g_assessmentReport.bookmarks(sourceBookmark).Range
+    Set dataInputArea = g_assessmentReport.Bookmarks(sourceBookmark).Range
 
     ' Get the Bookmarks corresponding Assessment Report xml data node so that we can update it
     theQuery = g_counters.UpdatePredicates(m_dataSource)
