@@ -224,8 +224,8 @@ Private Sub IAction_BuildAssessmentReport()
 
             ' Replace the bookmarked text with the dataNodes value
             Set targetArea = UpdateBookmark(m_bookmark, m_bookmarkPattern, m_patternData, m_deleteIfNull, theText, m_editable)
-            'delete wordings 'Site Assessment' of first page if '/Assessment/disclaimer' has no content,
             'tao@allfields.co.nz, 17/11/2016
+            'delete wordings 'Site Assessment' of first page if '/Assessment/disclaimer' has no content
             If m_bookmark = "HB_siteAssessment" And theText = "" Then
                 Dim bmRg As Range 'range of bookmark 'HB_siteAssessment'
                 Set bmRg = g_assessmentReport.Bookmarks(m_bookmark).Range
