@@ -311,6 +311,8 @@
 
 		<!--Recommendations: Table with repeating rows-->
 		<!--The table displays all Key Findings Exceptions with a type of Recommendation--> 
+		<!-- do not roll up Key findings from Exception table.
+			 tao@allfields.co.nz, 28/11/2016
 		<add	buildingBlock	="Recommendations Block 1"
 				bookmark		="Recommendations_tablePlaceholder"
 				where			="ReplaceRange"
@@ -318,13 +320,15 @@
 				bookmarkN		="Recommendations_table"
 				whereN			="AtEndOfRange"
 				test			="/Assessment/report/standard/findings[findingType = 'Recommendation']">
-
+		-->
 			 <!--Recommendations: Standard (Name of Standard)-->
+		<!--
 			<insert bookmark	="Recommendations_standardName"
 					dataFormat	="Text"
 					data		="(/Assessment/report/standard/improvementsRequired[section != '']/..)[%1]/description"/>
+		-->
 			<!--Recommendations: Action (rolled-up from the Key Findings Exception table Action item)-->
-		 </add>
+		<!--</add>-->
 
 		<!--Accreditation Status-->
 		<!--Main assessment and Site assessment fork-->
