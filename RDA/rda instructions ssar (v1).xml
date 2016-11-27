@@ -654,50 +654,51 @@
 		<!--Reuse the 'findings' counter-->
 		<counter	name	="findings"
 					value	="0"/>
+		<!--do not roll up the Recommendation findings from Exceptions. 28/11/2016, tao@allfields.co.nz -->
 		<!--Iterate all Standards (not just those with "findings[findingType = 'Recommendation']"/)-->
-		<do condition	="/Assessment/report/standard">
+		<!--<do condition	="/Assessment/report/standard">-->
 			<!--Iterate all 'findings' of the Standard selected by the preceeding 'do'-->
-			<do condition	="/Assessment/report/standard[%1]/findings">
+			<!--<do condition	="/Assessment/report/standard[%1]/findings">-->
 				<!--We are only interested in the 'finding' is it is a 'Recommendation'-->
-				<if	condition	="/Assessment/report/standard[%1]/findings[%2][findingType = 'Recommendation']">
-					<then>
+				<!--<if	condition	="/Assessment/report/standard[%1]/findings[%2][findingType = 'Recommendation']">-->
+					<!--<then>-->
 						<!--The counter determines which Building Block is inserted-->
-						<counter	name="findings"
-									add	="1"/>
-						<if	counter="findings" operator="EQ" value="1">
-							<then>
+						<!--<counter	name="findings"-->
+							<!--add	="1"/>-->
+						<!--<if	counter="findings" operator="EQ" value="1">-->
+							<!--<then>-->
 								<!--Insert the Building Block that contains the table header-->
-								<add	buildingBlock	="Recommendations Block 1"
-										bookmark		="Recommendations_tablePlaceholder"
-										where			="ReplaceRange"
-										test			="/Assessment">
-								</add>
-							</then>
-							<else>
+								<!--<add	buildingBlock	="Recommendations Block 1"-->
+									<!--bookmark		="Recommendations_tablePlaceholder"-->
+									<!--where			="ReplaceRange"-->
+									<!--test			="/Assessment">-->
+									<!--</add>-->
+								<!--</then>-->
+							<!--<else>-->
 								<!--Insert the Building Block that contains a follow on row-->
-								<add	buildingBlock	="Recommendations Block N"
-										bookmark		="Recommendations_table"
-										where			="AtEndOfRange"
-										test			="/Assessment">
-								</add>
-							</else>
-						</if>
+								<!--<add	buildingBlock	="Recommendations Block N"-->
+									<!--bookmark		="Recommendations_table"-->
+									<!--where			="AtEndOfRange"-->
+									<!--test			="/Assessment">-->
+									<!--</add>-->
+								<!--</else>-->
+							<!--</if>-->
 						 <!--Recommendations: Standard (Name of Standard)-->
-						<insert bookmark	="Recommendations_standardName"
-								dataFormat	="Text"
-								data		="/Assessment/report/standard[%1]/description"/>
+						 <!--<insert bookmark	="Recommendations_standardName"-->
+							 <!--dataFormat	="Text"-->
+							 <!--data		="/Assessment/report/standard[%1]/description"/>-->
 
 						<!--Give the bookmark predefined in the table data row a unique name-->
-						<rename	oldName	="Recommendations_findings"
-								newName	="Recommendations_s%1_findings_%2"/>
+						<!--<rename	oldName	="Recommendations_findings"-->
+							<!--newName	="Recommendations_s%1_findings_%2"/>-->
 
 						<!--Recommendations: Action (rolled-up from the Key Findings Exception tables Action item)-->
-						<link	bookmark	="Recommendations_s%1_findings_%2"
-								source		="KF_s%1_findings_%2"/>
-					</then>
-				</if>
-			</do>
-		</do>
+						<!--<link	bookmark	="Recommendations_s%1_findings_%2"-->
+							<!--source		="KF_s%1_findings_%2"/>-->
+					<!--</then>-->
+				<!--</if>-->
+			<!--</do>-->
+		<!--</do>-->
 
 		<!--Update the Accreditation Status DropDown ColourMap only if this is a Site Assessment-->
 		<if condition="/Assessment[disclaimer = '']">
