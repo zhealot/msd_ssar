@@ -236,6 +236,32 @@ Private Sub IAction_BuildAssessmentReport()
                     End If
                 End If
             End If
+            
+            'tao@allfields.co.nz, 20/03/2017
+            'take in <legalStructure> tag. Not a standard colouring scenario so process it here, same with 'deleteIfNull' part.
+            If m_bookmark = "ES_OCAH_legalStructure" Then
+                Dim bmRg_LS As Range
+                Set bmRg_LS = g_assessmentReport.Bookmarks(m_bookmark).Range
+                'apply colouring
+                If InStr(LCase(theText), "revocation") > 0 Or InStr(LCase(theText), "relinquishment") > 0 Then
+                    If InStr(LCase(theText), "revocation") > 0 Then
+                        bmRg_LS.Paragraphs(1).Shading.BackgroundPatternColor = wdColorRed
+                        bmRg_LS.Font.ColorIndex = wdWhite
+                    End If
+                    If InStr(LCase(theText), "relinquishment") > 0 Then
+                        bmRg_LS.Paragraphs(1).Shading.BackgroundPatternColor = wdColorWhite
+                        bmRg_LS.Font.ColorIndex = wdBlack
+                    End If
+                'delete row if no such content.
+                Else
+                    If bmRg_LS.Tables.Count > 0 Then
+                        If bmRg_LS.Cells.Count > 0 Then
+                            bmRg_LS.Tables(1).Rows(bmRg_LS.Cells(1).rowIndex).Delete
+                        End If
+                    End If
+                End If
+            End If
+            
         Case ssarDataFormatRichText
             EventLog "Updating (RichText) bookmark: " & m_bookmark, c_proc
 

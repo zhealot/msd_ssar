@@ -341,8 +341,12 @@
 						bookmark		="AS_Assessment_Block"
 						where			="ReplaceRange"
 						test			="/Assessment">
-
-					 <!--Accreditation Status: Status Block-->
+					<!--Accreditation Status: Legal Structure-->
+					<insert bookmark	="ES_OCAH_legalStructure"
+							editable 	="False"
+							dataFormat	="Text"
+							data		="/Assessment/executiveSummary/organisationalContextAndHistory/legalStructure"/>
+					<!--Accreditation Status: Status Block-->
 					<insert bookmark	="AS_status"
 							dataFormat	="Text"
 							coloured	="True"	
