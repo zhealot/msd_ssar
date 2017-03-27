@@ -342,6 +342,7 @@
 						where			="ReplaceRange"
 						test			="/Assessment">
 					<!--Accreditation Status: Legal Structure-->
+					<!--take in <legalStructure> tage. 22/03/2017, by tao@allfields.co.nz.-->
 					<insert bookmark	="ES_OCAH_legalStructure"
 							editable 	="False"
 							dataFormat	="Text"
