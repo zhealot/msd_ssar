@@ -20,6 +20,7 @@
 		<colourMapping	value="Accreditation pending completion of critical actions" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Suspended" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Revoked" foreground="White" background="Red"/>
+		<colourMapping	value="Accreditation Removed" foreground="Black" background="Aqua"/> <!--new AS entry, 26/04/2017 by tao@allfields.co.nz-->
 
 		<!--Key Findings: Outcome section DropDown values-->
 		<colourMapping	value="Standard exceeded" foreground="White" background="Blue"/>

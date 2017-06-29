@@ -268,6 +268,8 @@ Private Function ValidateAndTranslateColour(ByVal colourName As String, _
         ValidateAndTranslateColour = ssarColourWhite
     Case ssarColourNameBlue
         ValidateAndTranslateColour = ssarColourBlue
+    Case ssarColourNameAqua                             '26/04/2017, tao@allfields.co.nz
+        ValidateAndTranslateColour = ssarColourAqua
     Case Else
 
         ' Failed validation...

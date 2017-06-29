@@ -41,6 +41,7 @@ Public Const ssarColourNameGreen                        As String = "Green"
 Public Const ssarColourNameRed                          As String = "Red"
 Public Const ssarColourNameWhite                        As String = "White"
 Public Const ssarColourNameYellow                       As String = "Yellow"
+Public Const ssarColourNameAqua                         As String = "Aqua"      '26/04/2017, tao@allfields.co.nz
 
 ' Colours used for text and background (composite RGB colours as used by Word)
 Public Const ssarColourBlack                            As Long = wdColorBlack
@@ -49,6 +50,7 @@ Public Const ssarColourGreen                            As Long = 5287936       
 Public Const ssarColourRed                              As Long = 255               ' RGB(255,   0,   0)
 Public Const ssarColourWhite                            As Long = wdColorWhite
 Public Const ssarColourYellow                           As Long = 65535             ' RGB(255, 255,   0)
+Public Const ssarColourAqua                             As Long = 16777165          ' RGB(205, 255, 255) '26/04/2017, tao@allfields.co.nz
 
 ' Action 'add' and Action 'addDual' permissible 'where' attribute values
 Public Const ssarWhereTextAfterLastParagraph            As String = "AfterLastParagraph"
