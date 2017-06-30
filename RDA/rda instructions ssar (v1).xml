@@ -17,6 +17,7 @@
 		<colourMapping	value="Accreditation with conditions at Level 2" foreground="Black" background="Yellow"/>
 		<colourMapping	value="Accreditation with conditions at Level 3" foreground="Black" background="Yellow"/>
 		<colourMapping	value="Accreditation with conditions at Level 4" foreground="Black" background="Yellow"/>
+		<colourMapping	value="Confirmation of Accreditation pending completion of critical actions" foreground="White" background="Red"/> <!--new entry for site assessment report 'Approval Status' dropdown list. 29/06/2017, tao@allfields.co.nz -->
 		<colourMapping	value="Accreditation pending completion of critical actions" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Suspended" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Revoked" foreground="White" background="Red"/>
