@@ -17,11 +17,12 @@
 		<colourMapping	value="Accreditation with conditions at Level 2" foreground="Black" background="Yellow"/>
 		<colourMapping	value="Accreditation with conditions at Level 3" foreground="Black" background="Yellow"/>
 		<colourMapping	value="Accreditation with conditions at Level 4" foreground="Black" background="Yellow"/>
-		<colourMapping	value="Confirmation of Accreditation pending completion of critical actions" foreground="White" background="Red"/> <!--new entry for site assessment report 'Approval Status' dropdown list. 29/06/2017, tao@allfields.co.nz -->
+		<colourMapping	value="Confirmation of Accreditation pending completion of critical actions" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation pending completion of critical actions" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Suspended" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Revoked" foreground="White" background="Red"/>
 		<colourMapping	value="Accreditation Removed" foreground="Black" background="Aqua"/> <!--new AS entry, 26/04/2017 by tao@allfields.co.nz-->
+		<colourMapping	value="Application Declined" foreground="White" background="Red"/> <!--new AS entry, 7/06/2019 by tao@allfields.co.nz-->
 
 		<!--Key Findings: Outcome section DropDown values-->
 		<colourMapping	value="Standard exceeded" foreground="White" background="Blue"/>
@@ -354,6 +355,14 @@
 							dataFormat	="Text"
 							coloured	="True"	
 							data		="/Assessment/executiveSummary/assessmentSummary/approvalStatus"/>
+					<!-- new approval status 'Application Declined', keep the wording 'not ' for it, delete if NOT -->
+					<if condition	="/Assessment/executiveSummary/assessmentSummary[approvalStatus != 'Application Declined']">
+						<then>
+							<delete	bookmark	="AS_status_declined"/>
+						</then>
+						<else>
+						</else>
+					</if>
 					<!--Accreditation Status: Provider Legal name-->
 					<insert bookmark	="AS_P_legalName"
 							dataFormat	="Text"
@@ -379,6 +388,14 @@
 								coloured	="True"
 								ccDataNode	="accreditationStatus"
 								data		="/Assessment/executiveSummary/assessmentSummary/approvalStatus"/>
+					<!-- new approval status 'Application Declined', keep the wording 'not ' for it, delete if NOT -->
+					<if condition	="/Assessment/executiveSummary/assessmentSummary[approvalStatus != 'Application Declined']">
+						<then>
+							<delete	bookmark	="AS_status_declined"/>
+						</then>
+						<else>
+						</else>
+					</if>
 					<!--Accreditation Status: Provider Legal name-->
 					<insert bookmark	="AS_P_legalName"
 							dataFormat	="Text"
