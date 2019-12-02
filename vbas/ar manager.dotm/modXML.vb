@@ -170,7 +170,7 @@ End Sub ' RaiseErrorUnexpectedHTMLDocumentStructure
 ' On Entry:     repFileFullPath     The path and name of the html .rep file to load.
 ' Returns:      The text of the loaded .rep file.
 '=======================================================================================================================
-Private Function LoadRepHTMLFile(ByVal repFileFullPath As String) As String
+Public Function LoadRepHTMLFile(ByVal repFileFullPath As String) As String
     Const c_proc As String = "modXML.LoadRepHTMLFile"
     Const c_fsoForReading As Long = 1
     Const c_fsoForWriting As Long = 2

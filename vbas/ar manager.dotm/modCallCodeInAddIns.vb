@@ -103,7 +103,9 @@ Public Sub CallCodeInRDA(ByVal procedureName As String, _
     For Each stackItem In parameters
         g_rdaCallStack.Add stackItem
     Next
-
+    '### 5/11/2019, tao@allfields.co.nz
+    '### to prevent error from swtiching windows when 'Find and Replace' dialogue is open
+    On Error Resume Next
     Application.Run procedureToCall
 
 Do_Exit:
@@ -146,7 +148,9 @@ Public Sub CallCodeInSSAR(ByVal procedureName As String, _
     For Each stackItem In parameters
         g_ssarCallStack.Add stackItem
     Next
-
+    '### 5/11/2019, tao@allfields.co.nz
+    '### to prevent error from swtiching windows when 'Find and Replace' dialogue is open
+    On Error Resume Next
     Application.Run procedureToCall
 
 Do_Exit:
@@ -202,6 +206,21 @@ Public Sub Manager_InvalidateGroupControls()
 
         ' Force both addins to reset their Ribbons as we only want one addin displaying an RDA Tab!
         ' Or neither displaysing an RDA Tab is the ActiveDocument is not an assessment report.
+        
+        '#### 05092019 by tao@allfields.co.nz ####
+        'before rebuild/refresh RDA ribbon, in case g_rootData is lost, re-initialise it
+        If g_rootData Is Nothing Then
+            Set g_rootData = New RootData
+            If g_xmlDocument Is Nothing Then
+                If LoadRepHTMLFile(ActiveDocument.Variables("data file")) <> "" Then
+                    LoadRemedyHTMLFile ActiveDocument.Variables("data file"), g_xmlDocument
+                End If
+            End If
+            If Not g_xmlDocument Is Nothing Then
+                g_rootData.Initialise
+            End If
+        End If
+        '#########################################
         CallCodeInRDA "RDA_InvalidateGroupControls", "modRDAFluentUI"
         CallCodeInSSAR "SSAR_InvalidateGroupControls", "modSSARFluentUI"
     End If
